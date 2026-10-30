@@ -1,0 +1,10 @@
+#printArea{display:none}
+@media print{
+  html,body{height:auto;display:block;margin:0;padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rail,.drawer,.side,main,#toasts{display:none!important}
+  #printArea{display:block}
+  .pp{position:relative;width:var(--pw);height:calc(var(--ph) - .3mm);overflow:hidden;background:#fff;break-after:page}
+  .pp:last-child{break-after:auto}
+  .rz{display:none!important}
+  .it{outline:0!important}
+}

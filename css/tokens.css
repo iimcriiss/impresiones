@@ -1,0 +1,21 @@
+/* Paleta azul: Powder Blue #B3DEF8, Blue Gray #58A1D3, Classic Blue #0F4C81, Blue Slate #022C50, Midnight #06172E
+   (--c1 y --c2 son mezclas de Powder Blue con blanco) */
+:root{
+  --c1:#EAF5FD; --c2:#D4EAF9; --c3:#B3DEF8;
+  --c4:#58A1D3; --c5:#0F4C81; --c6:#022C50;
+  --midnight:#06172E;
+  --ink:#022C50;
+
+  --bg:var(--midnight);    /* fondo de la app */
+  --panel:var(--c1);       /* paneles laterales */
+  --note:#3B5F7E;          /* texto secundario */
+  --accent:var(--c4);      /* acciones principales */
+  --radius:14px;
+
+  --glow:rgba(88,161,211,.38);
+  --shadow-sm:0 1px 2px rgba(2,12,28,.18),0 4px 10px -2px rgba(2,12,28,.22);
+  --shadow-md:0 2px 4px rgba(2,12,28,.16),0 14px 28px -8px rgba(2,12,28,.4);
+  --shadow-lg:0 4px 8px rgba(2,12,28,.2),0 30px 60px -16px rgba(2,12,28,.65);
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}

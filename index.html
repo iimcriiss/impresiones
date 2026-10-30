@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hoja de impresión · SAPHIX</title>
+<link rel="icon" href="assets/favicon-64.png" type="image/png" sizes="64x64">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/print.css">
+<style id="page-size"></style>
+</head>
+<body>
+
+<!-- Barra izquierda: riel de iconos + panel de la sección elegida -->
+<nav class="rail" aria-label="Secciones">
+  <span class="pill" id="pill" aria-hidden="true"></span>
+  <span class="brand"><img src="assets/icono-saphix.png" alt="SAPHIX" width="46" height="46"></span>
+  <button class="tab" data-tab="img" type="button" aria-label="Imágenes"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg><span class="lb">Imágenes</span></button>
+  <button class="tab" data-tab="hoja" type="button" aria-label="Hoja"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span class="lb">Hoja</span></button>
+  <button class="tab" data-tab="out" type="button" aria-label="Imprimir y descargar"><svg viewBox="0 0 24 24"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><rect x="7" y="14" width="10" height="6"/></svg><span class="lb">Imprimir</span></button>
+  <button class="tab" data-tab="help" type="button" aria-label="Ayuda"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg><span class="lb">Ayuda</span></button>
+  <span class="fmts" title="Formatos que acepta"><em>Acepta</em><i>JPG</i><i>PNG</i><i>WebP</i><i>GIF</i><i>HEIC</i></span>
+  <span class="who">Herramienta de <b>SAPHIX</b></span>
+</nav>
+
+<main id="stage">
+  <div id="canvas">
+  <div id="sheet">
+    <div class="guide" id="guide"></div>
+    <div class="snap-line v" id="snapV" hidden></div>
+    <div class="snap-line h" id="snapH" hidden></div>
+    <button class="drop" id="drop" type="button"><strong>Suelta tus imágenes aquí</strong><span>o pulsa para elegirlas</span></button>
+  </div>
+  </div>
+  <div id="pages" hidden></div>
+  <div class="bar">
+    <input id="zoom" type="range" min="25" max="300" step="5" value="100" aria-label="Zoom">
+    <button id="zoomVal" class="zv" type="button" title="Ajustar a la pantalla">100%</button>
+    <button id="bPages" class="pbtn" type="button" aria-expanded="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 14h16"/></svg>Páginas</button>
+    <span class="pnav"><button id="pPrev" type="button" aria-label="Página anterior">‹</button><span id="pageNo">1 de 1</span><button id="pNext" type="button" aria-label="Página siguiente">›</button></span>
+  </div>
+</main>
+
+<!-- Barra derecha: herramientas de la imagen elegida -->
+
+<div class="col">
+<div class="drawer" id="drawer">
+  <section data-pane="img">
+    <h2>Imágenes</h2>
+    <button class="btn pri" id="bAdd" type="button">Agregar imágenes</button>
+    <button class="btn" id="bClear" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Borrar hoja</button>
+    <input id="file" type="file" accept="image/*,.heic,.heif" multiple hidden>
+    <p class="note" id="count"></p>
+    <p class="note">También puedes arrastrarlas a la hoja o pegarlas con Ctrl+V.</p>
+    <p class="note priv"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Tus imágenes no se comparten con terceros: se quedan en tu navegador.</p>
+  </section>
+
+  <section data-pane="hoja">
+    <h2>Hoja</h2>
+    <label>Tamaño de papel
+      <select id="paper">
+        <option value="a4">A4</option><option value="carta">Carta</option><option value="oficio">Oficio</option>
+        <option value="a5">A5</option><option value="f10">Foto 10×15 cm</option><option value="f13">Foto 13×18 cm</option>
+      </select>
+    </label>
+    <div class="seg" data-seg="orient">
+      <button type="button" data-v="p">Vertical</button><button type="button" data-v="l">Horizontal</button>
+    </div>
+    <div class="two">
+      <div><span class="lbl">Margen (mm)</span>
+        <div class="step" data-k="margin" data-min="0" data-max="60" data-inc="5"><button type="button" data-d="-1" aria-label="Menos margen">−</button><input type="text" inputmode="decimal" autocomplete="off" aria-label="Margen (mm)"><button type="button" data-d="1" aria-label="Más margen">+</button></div></div>
+      <div><span class="lbl">Espacio (mm)</span>
+        <div class="step" data-k="gap" data-min="0" data-max="60" data-inc="1"><button type="button" data-d="-1" aria-label="Menos espacio">−</button><input type="text" inputmode="decimal" autocomplete="off" aria-label="Espacio (mm)"><button type="button" data-d="1" aria-label="Más espacio">+</button></div></div>
+    </div>
+  
+    <h3 class="sub">Cuadrícula</h3>
+    <span class="lbl">Columnas × filas</span>
+    <div class="chips">
+      <button type="button" class="chip" data-preset="1x1">1×1</button><button type="button" class="chip" data-preset="2x1">2×1</button>
+      <button type="button" class="chip" data-preset="1x2">1×2</button><button type="button" class="chip" data-preset="2x2">2×2</button>
+      <button type="button" class="chip" data-preset="2x3">2×3</button><button type="button" class="chip" data-preset="3x3">3×3</button>
+      <button type="button" class="chip" data-preset="3x4">3×4</button><button type="button" class="chip" data-preset="4x4">4×4</button>
+    </div>
+    <div class="two">
+      <div><span class="lbl">Columnas</span>
+        <div class="step" data-k="cols" data-min="1" data-max="12" data-inc="1"><button type="button" data-d="-1" aria-label="Menos columnas">−</button><input type="text" inputmode="numeric" autocomplete="off" aria-label="Columnas"><button type="button" data-d="1" aria-label="Más columnas">+</button></div></div>
+      <div><span class="lbl">Filas</span>
+        <div class="step" data-k="rows" data-min="1" data-max="12" data-inc="1"><button type="button" data-d="-1" aria-label="Menos filas">−</button><input type="text" inputmode="numeric" autocomplete="off" aria-label="Filas"><button type="button" data-d="1" aria-label="Más filas">+</button></div></div>
+    </div>
+    <span class="lbl">Cómo se ve cada imagen</span>
+    <div class="seg" data-seg="fit">
+      <button type="button" data-v="contain">Completa</button><button type="button" data-v="cover">Llenar y recortar</button>
+    </div>
+    <label class="switch"><input type="checkbox" id="snap" checked><span>Ajuste automático</span></label>
+    <p class="note">Al mover o cambiar el tamaño, la imagen se pega a los bordes, márgenes, centros y otras imágenes. Mantén Alt para moverla sin imán.</p>
+    <button class="btn" id="bGrid" type="button">Acomodar de nuevo</button>
+  </section>
+
+  <section data-pane="out">
+    <h2>Imprimir y descargar</h2>
+    <button class="obtn pri" id="bPrint" type="button"><span class="oic"><svg viewBox="0 0 24 24"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><rect x="7" y="14" width="10" height="6"/></svg></span><span class="otx"><b>Imprimir</b><small>Abre la ventana de impresión</small></span></button>
+    <button class="obtn" id="bPdf" type="button"><span class="oic"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 15h4M10 18h4"/></svg></span><span class="otx"><b>Descargar PDF</b><small>Todas las páginas en un archivo</small></span></button>
+    <button class="obtn" id="bPng" type="button"><span class="oic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg></span><span class="otx"><b>Descargar PNG</b><small>Una imagen por cada página</small></span></button>
+  </section>
+  <section data-pane="help" class="help">
+    <h2>¿Cómo funciona?</h2>
+    <p class="note">Acomoda varias imágenes en una hoja y sácala impresa o en PDF en menos de un minuto.</p>
+    <ol class="how">
+      <li><b>Agrega tus imágenes</b><span>Con el botón, arrastrándolas a la hoja o pegándolas con Ctrl+V.</span></li>
+      <li><b>Elige el acomodo</b><span>Usa la cuadrícula (columnas × filas) o mueve cada imagen a mano.</span></li>
+      <li><b>Configura la hoja</b><span>Tamaño de papel, orientación, margen y espacio entre imágenes.</span></li>
+      <li><b>Imprime o descarga</b><span>Imprime directo o baja un PDF o PNG sin marca de agua.</span></li>
+    </ol>
+
+    <h3 class="sub">¿Qué recibe?</h3>
+    <p class="note">JPG, PNG, WebP, GIF y HEIC/HEIF (fotos de iPhone). Sin límite fijo de cantidad (depende de la memoria de tu equipo).</p>
+    <p class="note">Papel: A4, Carta, Oficio, A5 y foto 10×15 o 13×18 cm. Hasta 12×12 imágenes por hoja y varias páginas.</p>
+
+    <h3 class="sub">¿Por qué usarlo?</h3>
+    <ul class="why">
+      <li><b>Gratis y sin registro.</b> Úsalo las veces que quieras.</li>
+      <li><b>Privado.</b> Tus imágenes no se comparten con terceros: se procesan en tu navegador y no se suben a ningún servidor.</li>
+      <li><b>Sin instalar nada.</b> Todo corre en el navegador.</li>
+    </ul>
+
+    <h3 class="sub">Casos de uso</h3>
+    <ul class="why">
+      <li><b>Papelerías:</b> varias fotos tipo carnet o credenciales por hoja.</li>
+      <li><b>Tareas:</b> collages, líneas del tiempo, exposiciones.</li>
+      <li><b>Eventos:</b> invitaciones, recuerdos y stickers en serie.</li>
+      <li><b>Catálogos:</b> hojas de productos o muestras.</li>
+    </ul>
+
+    <h3 class="sub">Atajos</h3>
+    <ul class="why keys">
+      <li><kbd>Ctrl</kbd>/<kbd>Shift</kbd> + clic: elegir varias · <kbd>Ctrl</kbd>+<kbd>A</kbd>: todas</li>
+      <li>Flechas: mover 1 mm (con <kbd>Shift</kbd>, 5 mm)</li>
+      <li><kbd>Alt</kbd> al arrastrar: mover sin imán</li>
+      <li><kbd>Ctrl</kbd>+<kbd>[</kbd> / <kbd>]</kbd>: bajar / subir capa</li>
+      <li>Doble clic en una imagen: encuadrar · <kbd>Esc</kbd>: salir</li>
+    </ul>
+
+    <h3 class="sub">Preguntas frecuentes</h3>
+    <details><summary>¿Es gratis?</summary><p>Sí, sin cuenta ni marca de agua.</p></details>
+    <details><summary>¿Funciona en celular?</summary><p>Se abre, pero se maneja mucho mejor en computador.</p></details>
+    <details><summary>¿Mis imágenes se publican?</summary><p>No. Se quedan en tu navegador y no se envían a ningún lado.</p></details>
+    <details><summary>¿Cómo imprimo el PDF?</summary><p>Ábrelo y elige Imprimir. En «Escala» pon 100% (o «Tamaño real») y el mismo papel que elegiste aquí.</p></details>
+    <details><summary>¿Sirve para papelerías?</summary><p>Sí: pon varias fotos por hoja y ahorra papel.</p></details>
+    <p class="note brandnote">Herramienta de <b>SAPHIX</b></p>
+  </section>
+</div>
+
+<aside class="side off" id="side">
+  <h2 id="selTitle">Imagen elegida</h2>
+  <p class="note empty-note">Toca una imagen de la hoja para editarla. Arrástrala para moverla y usa la esquina para cambiar su tamaño. Con Ctrl (o Shift) puedes elegir varias.</p>
+  <div class="sel-body">
+    <button class="act" id="bRot" type="button"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></svg>Girar</button>
+    <button class="act" id="bFit" type="button"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span id="fitLabel">Llenar</span></button>
+    <button class="act" id="bCrop" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 3v14h14"/><path d="M3 7h14v14"/></svg>Encuadrar</button>
+    <div id="cropTools" hidden>
+      <span class="lbl">Acercar</span>
+      <input id="cz" type="range" min="100" max="500" step="5" value="100" aria-label="Acercar imagen">
+      <button class="btn" id="bCropReset" type="button">Restablecer encuadre</button>
+      <p class="note">Arrastra la imagen dentro del marco para elegir qué parte se ve. Rueda del mouse para acercar. Esc para salir.</p>
+    </div>
+    <button class="act" id="bDup" type="button"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Duplicar</button>
+    <button class="act" id="bDel" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Quitar</button>
+    <p class="note">Flechas del teclado: mover 1 mm (con Shift, 5 mm).</p>
+  </div>
+  <div class="posc">
+    <h3 class="sub">Posición</h3>
+    <div class="seg ptabs">
+      <button type="button" data-ptab="org">Organizar</button><button type="button" data-ptab="capas">Capas</button>
+    </div>
+    <div data-ppane="org">
+      <div data-need>
+        <div class="pgrid">
+          <button class="act" id="bUp" type="button"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Delante</button>
+          <button class="act" id="bDown" type="button"><svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Detrás</button>
+          <button class="act" id="bTop" type="button"><svg viewBox="0 0 24 24"><path d="M5 4h14M12 20V9M6 14l6-6 6 6"/></svg>Al frente</button>
+          <button class="act" id="bBottom" type="button"><svg viewBox="0 0 24 24"><path d="M5 20h14M12 4v11M6 10l6 6 6-6"/></svg>Al fondo</button>
+        </div>
+        <h4 class="pt">Alinear a la hoja</h4>
+        <div class="pgrid">
+          <button class="act" type="button" data-al="top"><svg viewBox="0 0 24 24"><path d="M5 4h14"/><rect x="8" y="8" width="3.5" height="10" rx="1"/><rect x="13.5" y="8" width="3.5" height="6" rx="1"/></svg>Arriba</button>
+          <button class="act" type="button" data-al="left"><svg viewBox="0 0 24 24"><path d="M4 5v14"/><rect x="8" y="8" width="10" height="3.5" rx="1"/><rect x="8" y="13.5" width="6" height="3.5" rx="1"/></svg>Izquierda</button>
+          <button class="act" type="button" data-al="mid"><svg viewBox="0 0 24 24"><path d="M4 12h16"/><rect x="7" y="6" width="3.5" height="12" rx="1"/><rect x="13.5" y="8.5" width="3.5" height="7" rx="1"/></svg>En medio</button>
+          <button class="act" type="button" data-al="center"><svg viewBox="0 0 24 24"><path d="M12 4v16"/><rect x="6" y="7" width="12" height="3.5" rx="1"/><rect x="8.5" y="13.5" width="7" height="3.5" rx="1"/></svg>Centro</button>
+          <button class="act" type="button" data-al="bottom"><svg viewBox="0 0 24 24"><path d="M5 20h14"/><rect x="8" y="6" width="3.5" height="10" rx="1"/><rect x="13.5" y="10" width="3.5" height="6" rx="1"/></svg>Abajo</button>
+          <button class="act" type="button" data-al="right"><svg viewBox="0 0 24 24"><path d="M20 5v14"/><rect x="6" y="8" width="10" height="3.5" rx="1"/><rect x="10" y="13.5" width="6" height="3.5" rx="1"/></svg>Derecha</button>
+        </div>
+        <p class="note">Alinea dentro de los márgenes de la hoja.</p>
+      </div>
+      <div class="adv meas" data-need>
+        <h4 class="pt">Avanzados (mm)</h4>
+        <div class="trio">
+          <label>Comenzar X<input id="fx" type="number" step="0.5"></label>
+          <label>Comenzar Y<input id="fy" type="number" step="0.5"></label>
+          <div class="fld"><span>Relación</span><button class="act lockb" id="bLock" type="button" aria-pressed="false" aria-label="Mantener la proporción"><svg class="lk-c" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="lk-o" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-1.9"/></svg></button></div>
+          <label>Finalizar X<input id="fex" type="number" step="0.5"></label>
+          <label>Finalizar Y<input id="fey" type="number" step="0.5"></label>
+          <div class="fld"><span>Girar</span><button class="act lockb" id="bRot2" type="button" title="Girar 90°"><b id="rotVal">--</b></button></div>
+        </div>
+      </div>
+    </div>
+    <div data-ppane="capas" hidden>
+      <div id="layers"></div>
+    </div>
+  </div>
+</aside>
+</div>
+
+<div id="printArea"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script defer src="js/state.js"></script>
+<script defer src="js/layout.js"></script>
+<script defer src="js/render.js"></script>
+<script defer src="js/pages.js"></script>
+<script defer src="js/interactions.js"></script>
+<script defer src="js/position.js"></script>
+<script defer src="js/ui.js"></script>
+<script defer src="js/export.js"></script>
+<script defer src="js/main.js"></script>
+</body>
+</html>
