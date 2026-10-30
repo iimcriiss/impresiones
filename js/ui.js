@@ -10,53 +10,74 @@
   };
 
   // HEIC/HEIF: se prueba (1) el navegador, (2) libheif-js y (3) heic2any; se baja solo si hace falta
+  // Límites de seguridad: evitan que un archivo enorme o malicioso congele o agote la memoria del navegador
+  const MAX_BYTES = 60 * 1024 * 1024, MAX_PIXELS = 150e6;
   const isHeic = f => /image\/hei[cf]/i.test(f.type) || /\.hei[cf]$/i.test(f.name);
-  const libs = {};
-  const loadLib = (key, url, glob) => libs[key] || (libs[key] = new Promise((ok, no) => {
-    if (window[glob]) return ok(window[glob]);
-    const s = document.createElement('script'); s.src = url;
-    s.onload = () => window[glob] ? ok(window[glob]) : no(new Error('la librería no cargó'));
-    s.onerror = () => { delete libs[key]; no(new Error('sin conexión a la librería')); };
-    document.head.append(s);
-  }));
-  const canvasToURL = c => new Promise((ok, no) => c.toBlob(b => b ? ok(URL.createObjectURL(b)) : no(new Error('no se pudo convertir')), 'image/jpeg', .92));
   const canOpen = url => new Promise(ok => { const i = new Image(); i.onload = () => ok(true); i.onerror = () => ok(false); i.src = url; });
   const viaLibheif = async f => {
-    const lh = await loadLib('lh', 'https://cdn.jsdelivr.net/npm/libheif-js@1.18.2/libheif-wasm/libheif-bundle.js', 'libheif');
+    const lh = await loadLib('lh', 'js/vendor/libheif-bundle-1.18.2.js', 'libheif');
     const im = new lh.HeifDecoder().decode(new Uint8Array(await f.arrayBuffer()))[0];
     if (!im) throw new Error('formato HEIC no reconocido');
     const w = im.get_width(), h = im.get_height();
+    if (w * h > MAX_PIXELS) throw new Error('imagen demasiado grande');
     const c = document.createElement('canvas'); c.width = w; c.height = h;
     const ctx = c.getContext('2d'), id = ctx.createImageData(w, h);
     await new Promise((ok, no) => im.display(id, r => r ? ok() : no(new Error('no se pudo decodificar'))));
     ctx.putImageData(id, 0, 0); return canvasToURL(c);
   };
   const viaHeic2any = async f => {
-    const conv = await loadLib('h2a', 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js', 'heic2any');
+    const conv = await loadLib('h2a', 'js/vendor/heic2any-0.0.4.min.js', 'heic2any');
     let out = await conv({ blob: f, toType: 'image/jpeg', quality: .92 });
     if (Array.isArray(out)) out = out[0];
     return URL.createObjectURL(out);
+  };
+  // La conversión HEIC corre en un marco aparte (heic/decoder.html) con sus propias reglas de seguridad
+  let heicId = 0;
+  const heicFrame = () => heicFrame.p || (heicFrame.p = new Promise((ok, no) => {
+    const fr = document.createElement('iframe');
+    fr.src = 'heic/decoder.html'; fr.hidden = true; fr.title = 'Conversor HEIC'; fr.setAttribute('aria-hidden', 'true');
+    const fail = m => { heicFrame.p = null; removeEventListener('message', onMsg); fr.remove(); no(new Error(m)); };
+    const t = setTimeout(() => fail('el conversor no respondió'), 15000);
+    const onMsg = e => {
+      if (e.source !== fr.contentWindow || e.origin !== location.origin || !e.data || !e.data.ready) return;
+      clearTimeout(t); removeEventListener('message', onMsg); ok(fr);
+    };
+    addEventListener('message', onMsg); document.body.append(fr);
+  }));
+  const viaFrame = async f => {
+    const fr = await heicFrame(), id = ++heicId;
+    return new Promise((ok, no) => {
+      const onMsg = e => {
+        if (e.source !== fr.contentWindow || e.origin !== location.origin || !e.data || e.data.id !== id) return;
+        removeEventListener('message', onMsg);
+        e.data.blob instanceof Blob ? ok(URL.createObjectURL(e.data.blob)) : no(new Error(e.data.error || 'no se pudo convertir'));
+      };
+      addEventListener('message', onMsg); fr.contentWindow.postMessage({ id, file: f }, location.origin);
+    });
   };
   const toBlobURL = async f => {
     const raw = URL.createObjectURL(f);
     if (!isHeic(f)) return raw;
     if (await canOpen(raw)) return raw;            // Safari lo abre directo
-    let err;
-    for (const fn of [viaLibheif, viaHeic2any]) {
-      try { return await fn(f); } catch (e) { err = e; console.warn('HEIC:', e); }
-    }
-    throw err;
+    URL.revokeObjectURL(raw);
+    return viaFrame(f);
   };
 
   App.addFiles = list => {
     const imgs = [...list].filter(f => f.type.startsWith('image/') || isHeic(f));
     if (!imgs.length) { App.toast('Ese archivo no es una imagen.'); return; }
-    imgs.forEach(async f => {
+    const big = imgs.filter(f => f.size > MAX_BYTES), ok = imgs.filter(f => f.size <= MAX_BYTES);
+    if (big.length) App.toast(big.length === 1 ? '«' + big[0].name + '» pesa más de 60 MB y se omitió.' : big.length + ' imágenes pesan más de 60 MB y se omitieron.');
+    if (!ok.length) return;
+    ok.forEach(async f => {
       let url;
       const wait = isHeic(f) ? App.toast('Convirtiendo «' + f.name + '»…') : null;
       try { url = await toBlobURL(f); if (wait) wait.remove(); } catch (e) { if (wait) wait.remove(); App.toast('No se pudo abrir «' + f.name + '»' + (e && e.message ? ' (' + e.message + ')' : '') + '.'); return; }
       const img = new Image();
       img.onload = () => {
+        if (!img.naturalWidth || !img.naturalHeight || img.naturalWidth * img.naturalHeight > MAX_PIXELS) {
+          URL.revokeObjectURL(url); App.toast('«' + f.name + '» tiene un tamaño no válido o demasiado grande.'); return;
+        }
         const it = { id: 'i' + (++S.uid), name: f.name, img, src: img.src, x: 10, y: 10, w: 50, h: 50, rot: 0, fit: S.fit, z: 1, fx: 0, fy: 0, l: App.nextLayer() };
         S.items.push(it);
         if (!S.manual) App.layout();
