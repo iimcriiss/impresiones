@@ -73,6 +73,7 @@
     sheet.classList.toggle('multi', multi); $('side').classList.toggle('multi', multi);
     $('selTitle').textContent = multi ? ids.length + ' imágenes elegidas' : 'Imagen elegida';
     $('side').classList.toggle('off', !it);
+    document.body.classList.toggle('selmulti', multi);
     $('bUndeform').hidden = !(it && it.df && !multi);
     if (it) { $('cz').value = Math.round((it.z || 1) * 100); $('czVal').textContent = Math.round((it.z || 1) * 100) + '%'; App.syncFields(); }
   };

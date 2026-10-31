@@ -124,7 +124,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 
 /* Selección múltiple */
 #sheet.multi .rz{display:none!important}
-.side.multi #bCrop,.side.multi #cropTools,.side.multi .meas{display:none}
+.side.multi #bCrop,.side.multi #cropTools{display:none}
 
 /* Hoja + cuadrícula en un solo panel */
 .sub{margin:22px 0 4px;padding-top:16px;border-top:2px solid var(--c3);font-size:16px;font-weight:800}
@@ -466,3 +466,13 @@ body.gray #sheet .it img,body.gray #pages .it img{-webkit-filter:grayscale(1);fi
 .cm-hint{font-size:12.5px;color:var(--c5);opacity:.85;line-height:1.35}
 
 #bUndeform[hidden]{display:none}
+
+body.selmulti .meas{display:none}
+.posc[hidden]{display:none}
+
+/* Panel de la imagen oculto: la hoja y el cajón ocupan su lugar */
+body.noside{grid-template-columns:minmax(0,1fr) 300px}
+body.noside.min{grid-template-columns:minmax(0,1fr)}
+body.noside main{grid-column:1}
+body.noside .drawer{grid-column:2}
+body.noside .side{display:none}

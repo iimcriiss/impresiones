@@ -122,6 +122,7 @@
   };
   function updatePos() {
     const has = !!App.byId(S.sel), os = orderState();
+    $('posHint').hidden = has;
     q('[data-need]').forEach(c => c.querySelectorAll('button,input').forEach(b => { b.disabled = !has; }));
     $('bUp').disabled = $('bTop').disabled = !has || !os.up;
     $('bDown').disabled = $('bBottom').disabled = !has || !os.down;

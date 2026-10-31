@@ -20,6 +20,7 @@
   <span class="brand"><img src="assets/icono-saphix.png" alt="SAPHIX" width="46" height="46"></span>
   <button class="tab" data-tab="img" type="button" aria-label="Imágenes"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg><span class="lb">Imágenes</span></button>
   <button class="tab" data-tab="hoja" type="button" aria-label="Hoja"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span class="lb">Hoja</span></button>
+  <button class="tab" data-tab="pos" type="button" aria-label="Posición"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg><span class="lb">Posición</span></button>
   <button class="tab" data-tab="out" type="button" aria-label="Imprimir y descargar"><svg viewBox="0 0 24 24"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><rect x="7" y="14" width="10" height="6"/></svg><span class="lb">Imprimir</span></button>
   <button class="tab" data-tab="help" type="button" aria-label="Ayuda"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg><span class="lb">Ayuda</span></button>
   <span class="fmts" title="Formatos que acepta"><em>Acepta</em><i>JPG</i><i>PNG</i><i>WebP</i><i>GIF</i><i>HEIC</i></span>
@@ -39,6 +40,7 @@
   <div class="bar">
     <input id="zoom" type="range" min="25" max="500" step="5" value="100" aria-label="Zoom">
     <button id="zoomVal" class="zv" type="button" title="Ajustar a la pantalla">100%</button>
+    <button id="bSide" class="pbtn on" type="button" aria-pressed="true" title="Mostrar u ocultar el panel de la imagen (P)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>Panel</button>
     <button id="bPages" class="pbtn" type="button" aria-expanded="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 14h16"/></svg>Páginas</button>
     <span class="pnav"><button id="pPrev" type="button" aria-label="Página anterior">‹</button><span id="pageNo">1 de 1</span><button id="pNext" type="button" aria-label="Página siguiente">›</button></span>
   </div>
@@ -101,97 +103,10 @@
     <button class="obtn" id="bPdf" type="button"><span class="oic"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 15h4M10 18h4"/></svg></span><span class="otx"><b>Descargar PDF</b><small>Todas las páginas en un archivo</small></span></button>
     <button class="obtn" id="bPng" type="button"><span class="oic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg></span><span class="otx"><b>Descargar PNG</b><small>Una imagen por cada página</small></span></button>
   </section>
-  <section data-pane="help" class="help">
-    <h2>¿Cómo funciona?</h2>
-    <p class="note">Acomoda varias imágenes en una hoja y sácala impresa o en PDF en menos de un minuto.</p>
-    <ol class="how">
-      <li><b>Agrega tus imágenes</b><span>Con el botón, arrastrándolas a la hoja o pegándolas con Ctrl+V.</span></li>
-      <li><b>Elige el acomodo</b><span>Usa la cuadrícula (columnas × filas) o mueve cada imagen a mano.</span></li>
-      <li><b>Configura la hoja</b><span>Tamaño de papel, orientación, margen y espacio entre imágenes.</span></li>
-      <li><b>Imprime o descarga</b><span>Imprime directo o baja un PDF o PNG sin marca de agua.</span></li>
-    </ol>
-
-    <h3 class="sub">¿Qué recibe?</h3>
-    <p class="note">JPG, PNG, WebP, GIF y HEIC/HEIF (fotos de iPhone). Sin límite fijo de cantidad (depende de la memoria de tu equipo); cada imagen puede pesar hasta 60 MB.</p>
-    <p class="note">Papel: A4, Carta, Oficio, A5 y foto 10×15 o 13×18 cm. Hasta 12×12 imágenes por hoja y varias páginas.</p>
-
-    <h3 class="sub">¿Por qué usarlo?</h3>
-    <ul class="why">
-      <li><b>Gratis y sin registro.</b> Úsalo las veces que quieras.</li>
-      <li><b>Privado.</b> Tus imágenes no se comparten con terceros: se procesan en tu navegador y no se suben a ningún servidor.</li>
-      <li><b>Sin instalar nada.</b> Todo corre en el navegador.</li>
-    </ul>
-
-    <h3 class="sub">Casos de uso</h3>
-    <ul class="why">
-      <li><b>Papelerías:</b> varias fotos tipo carnet o credenciales por hoja.</li>
-      <li><b>Tareas:</b> collages, líneas del tiempo, exposiciones.</li>
-      <li><b>Eventos:</b> invitaciones, recuerdos y stickers en serie.</li>
-      <li><b>Catálogos:</b> hojas de productos o muestras.</li>
-    </ul>
-
-    <h3 class="sub">Atajos</h3>
-    <ul class="why keys">
-      <li><kbd>Ctrl</kbd>/<kbd>Shift</kbd> + clic: elegir varias · <kbd>Ctrl</kbd>+<kbd>A</kbd>: todas</li>
-      <li>Flechas: mover 1 mm (con <kbd>Shift</kbd>, 5 mm)</li>
-      <li><kbd>Alt</kbd> al arrastrar: mover sin imán</li>
-      <li>Arrastrar una imagen sobre otra: intercambiar su orden</li>
-      <li><kbd>Ctrl</kbd>+<kbd>[</kbd> / <kbd>]</kbd>: bajar / subir capa</li>
-      <li>Doble clic en una imagen: moverla dentro del marco · <kbd>Esc</kbd>: salir</li>
-      <li>Triángulo de la esquina: agrandar o achicar conservando la proporción · con <kbd>Shift</kbd>, deformar · doble clic: proporción original</li>
-      <li><kbd>Ctrl</kbd>+<kbd>Z</kbd>: deshacer el último cambio de tamaño o deformación</li>
-      <li><kbd>Ctrl</kbd> + rueda del mouse sobre la hoja: zoom de 25% a 500%</li>
-      <li>Recortar → botón de girar: enderezar con cualquier ángulo · <kbd>Shift</kbd>: de 15° en 15° · <kbd>Alt</kbd>: sin imán · doble clic: 0°</li>
-    </ul>
-
-    <h3 class="sub">Editar una imagen</h3>
-    <ul class="why">
-      <li><b>Cambiar tamaño:</b> arrastra el triángulo de la esquina inferior derecha. La imagen conserva su proporción; mantén <kbd>Shift</kbd> para estirarla y deformarla. Si no te gusta, pulsa «Deshacer» en el aviso, <kbd>Ctrl</kbd>+<kbd>Z</kbd>, «Quitar deformación» en el panel o haz doble clic en el triángulo.</li>
-      <li><b>Recortar:</b> abre una ventana con la imagen original. Arrastra los círculos de las esquinas y las barras de los lados, o mueve el recuadro. Se puede volver atrás con «Restablecer».</li>
-      <li><b>Enderezar o girar:</b> en esa misma ventana, arrastra el botón de girar que está debajo de la imagen. Los grados se ven al lado y se pega a 0°, 45° y 90°. Para giros de 90° usa «Girar» del panel.</li>
-      <li><b>Acercar o alejar:</b> en «Tamaño de la imagen» va de 20% a 500%. Con doble clic mueves la imagen dentro del marco y la rueda del mouse acerca y aleja.</li>
-      <li><b>Escáner:</b> Original, Mejorado, Grises y Documento. Siempre puedes volver a Original.</li>
-    </ul>
-
-    <h3 class="sub">Preguntas frecuentes</h3>
-    <details><summary>¿Es gratis?</summary><p>Sí, sin cuenta ni marca de agua.</p></details>
-    <details><summary>¿Funciona en celular?</summary><p>Se abre, pero se maneja mucho mejor en computador.</p></details>
-    <details><summary>¿Mis imágenes se publican?</summary><p>No. Se quedan en tu navegador y no se envían a ningún lado.</p></details>
-    <details><summary>¿Cómo imprimo el PDF?</summary><p>Ábrelo y elige Imprimir. En «Escala» pon 100% (o «Tamaño real») y el mismo papel que elegiste aquí.</p></details>
-    <details><summary>¿Sirve para papelerías?</summary><p>Sí: pon varias fotos por hoja y ahorra papel.</p></details>
-    <p class="note brandnote">Herramienta de <b>SAPHIX</b></p>
-  </section>
-</div>
-
-<aside class="side off" id="side">
-  <h2 id="selTitle">Imagen elegida</h2>
-  <p class="note empty-note">Toca una imagen de la hoja para editarla. Arrástrala para moverla y usa el triángulo de la esquina para cambiar su tamaño (con Shift la deformas). Con Ctrl (o Shift) puedes elegir varias.</p>
-  <div class="sel-body">
-    <button class="act" id="bRot" type="button"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></svg>Girar</button>
-    <button class="act" id="bCrop" type="button"><svg viewBox="0 0 24 24"><path d="M7 3v14h14"/><path d="M3 7h14v14"/></svg>Recortar</button>
-    <button class="act" id="bDup" type="button"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Duplicar</button>
-    <button class="act" id="bDel" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Quitar</button>
-    <button class="act" id="bUndeform" type="button" hidden><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Quitar deformación</button>
-    <div id="cropTools">
-      <span class="lbl">Tamaño de la imagen · <b id="czVal">100%</b></span>
-      <input id="cz" type="range" min="20" max="500" step="5" value="100" aria-label="Tamaño de la imagen">
-      <button class="btn" id="bCropReset" type="button">Restablecer tamaño</button>
-      <p class="note">Agranda o achica la imagen dentro de su marco. Doble clic sobre ella para moverla; con la rueda del mouse también acercas y alejas.</p>
-    </div>
-    <div id="scanTools">
-      <h4 class="pt">Escáner</h4>
-      <div class="pgrid">
-        <button class="act" type="button" data-flt="none">Original</button>
-        <button class="act" type="button" data-flt="magic">Mejorado</button>
-        <button class="act" type="button" data-flt="gray">Grises</button>
-        <button class="act" type="button" data-flt="bw">Documento</button>
-      </div>
-      <p class="note">Aclara y da contraste como una app de escáner. «Documento» deja solo blanco y negro. Puedes volver a Original cuando quieras.</p>
-    </div>
+  <section data-pane="pos" class="posc" hidden>
+    <h2>Posición</h2>
+    <p class="note" id="posHint">Elige una imagen de la hoja para usar estas opciones. Con Ctrl o Shift eliges varias.</p>
     <p class="note">Flechas del teclado: mover 1 mm (con Shift, 5 mm).</p>
-  </div>
-  <div class="posc">
-    <h3 class="sub">Posición</h3>
     <div class="seg ptabs">
       <button type="button" data-ptab="org">Organizar</button><button type="button" data-ptab="capas">Capas</button>
     </div>
@@ -234,6 +149,96 @@
     </div>
     <div data-ppane="capas" hidden>
       <div id="layers"></div>
+    </div>
+  </section>
+  <section data-pane="help" class="help">
+    <h2>¿Cómo funciona?</h2>
+    <p class="note">Acomoda varias imágenes en una hoja y sácala impresa o en PDF en menos de un minuto.</p>
+    <ol class="how">
+      <li><b>Agrega tus imágenes</b><span>Con el botón, arrastrándolas a la hoja o pegándolas con Ctrl+V.</span></li>
+      <li><b>Elige el acomodo</b><span>Usa la cuadrícula (columnas × filas) o mueve cada imagen a mano.</span></li>
+      <li><b>Configura la hoja</b><span>Tamaño de papel, orientación, margen y espacio entre imágenes.</span></li>
+      <li><b>Imprime o descarga</b><span>Imprime directo o baja un PDF o PNG sin marca de agua.</span></li>
+    </ol>
+
+    <h3 class="sub">¿Qué recibe?</h3>
+    <p class="note">JPG, PNG, WebP, GIF y HEIC/HEIF (fotos de iPhone). Sin límite fijo de cantidad (depende de la memoria de tu equipo); cada imagen puede pesar hasta 60 MB.</p>
+    <p class="note">Papel: A4, Carta, Oficio, A5 y foto 10×15 o 13×18 cm. Hasta 12×12 imágenes por hoja y varias páginas.</p>
+
+    <h3 class="sub">¿Por qué usarlo?</h3>
+    <ul class="why">
+      <li><b>Gratis y sin registro.</b> Úsalo las veces que quieras.</li>
+      <li><b>Privado.</b> Tus imágenes no se comparten con terceros: se procesan en tu navegador y no se suben a ningún servidor.</li>
+      <li><b>Sin instalar nada.</b> Todo corre en el navegador.</li>
+    </ul>
+
+    <h3 class="sub">Casos de uso</h3>
+    <ul class="why">
+      <li><b>Papelerías:</b> varias fotos tipo carnet o credenciales por hoja.</li>
+      <li><b>Tareas:</b> collages, líneas del tiempo, exposiciones.</li>
+      <li><b>Eventos:</b> invitaciones, recuerdos y stickers en serie.</li>
+      <li><b>Catálogos:</b> hojas de productos o muestras.</li>
+    </ul>
+
+    <h3 class="sub">Atajos</h3>
+    <ul class="why keys">
+      <li><kbd>Ctrl</kbd>/<kbd>Shift</kbd> + clic: elegir varias · <kbd>Ctrl</kbd>+<kbd>A</kbd>: todas</li>
+      <li>Flechas: mover 1 mm (con <kbd>Shift</kbd>, 5 mm)</li>
+      <li><kbd>Alt</kbd> al arrastrar: mover sin imán</li>
+      <li>Arrastrar una imagen sobre otra: intercambiar su orden</li>
+      <li><kbd>Ctrl</kbd>+<kbd>[</kbd> / <kbd>]</kbd>: bajar / subir capa</li>
+      <li>Doble clic en una imagen: moverla dentro del marco · <kbd>Esc</kbd>: salir</li>
+      <li>Triángulo de la esquina: agrandar o achicar conservando la proporción · con <kbd>Shift</kbd>, deformar · doble clic: proporción original</li>
+      <li><kbd>P</kbd>: mostrar u ocultar el panel de la imagen (también el botón «Panel» de la barra de abajo)</li>
+      <li><kbd>Ctrl</kbd>+<kbd>Z</kbd>: deshacer el último cambio de tamaño o deformación</li>
+      <li><kbd>Ctrl</kbd> + rueda del mouse sobre la hoja: zoom de 25% a 500%</li>
+      <li>Recortar → botón de girar: enderezar con cualquier ángulo · <kbd>Shift</kbd>: de 15° en 15° · <kbd>Alt</kbd>: sin imán · doble clic: 0°</li>
+    </ul>
+
+    <h3 class="sub">Editar una imagen</h3>
+    <ul class="why">
+      <li><b>Cambiar tamaño:</b> arrastra el triángulo de la esquina inferior derecha. La imagen conserva su proporción; mantén <kbd>Shift</kbd> para estirarla y deformarla. Si no te gusta, pulsa «Deshacer» en el aviso, <kbd>Ctrl</kbd>+<kbd>Z</kbd>, «Quitar deformación» en el panel o haz doble clic en el triángulo.</li>
+      <li><b>Recortar:</b> abre una ventana con la imagen original. Arrastra los círculos de las esquinas y las barras de los lados, o mueve el recuadro. Se puede volver atrás con «Restablecer».</li>
+      <li><b>Enderezar o girar:</b> en esa misma ventana, arrastra el botón de girar que está debajo de la imagen. Los grados se ven al lado y se pega a 0°, 45° y 90°. Para giros de 90° usa «Girar» del panel.</li>
+      <li><b>Acercar o alejar:</b> en «Tamaño de la imagen» va de 20% a 500%. Con doble clic mueves la imagen dentro del marco y la rueda del mouse acerca y aleja.</li>
+      <li><b>Posición:</b> en la pestaña «Posición» del menú de la izquierda: delante o detrás, orden en la cuadrícula, capas, alinear a la hoja y medidas exactas en mm.</li>
+      <li><b>Escáner:</b> Original, Mejorado, Grises y Documento. Siempre puedes volver a Original.</li>
+    </ul>
+
+    <h3 class="sub">Preguntas frecuentes</h3>
+    <details><summary>¿Es gratis?</summary><p>Sí, sin cuenta ni marca de agua.</p></details>
+    <details><summary>¿Funciona en celular?</summary><p>Se abre, pero se maneja mucho mejor en computador.</p></details>
+    <details><summary>¿Mis imágenes se publican?</summary><p>No. Se quedan en tu navegador y no se envían a ningún lado.</p></details>
+    <details><summary>¿Cómo imprimo el PDF?</summary><p>Ábrelo y elige Imprimir. En «Escala» pon 100% (o «Tamaño real») y el mismo papel que elegiste aquí.</p></details>
+    <details><summary>¿Sirve para papelerías?</summary><p>Sí: pon varias fotos por hoja y ahorra papel.</p></details>
+    <p class="note brandnote">Herramienta de <b>SAPHIX</b></p>
+  </section>
+</div>
+
+<aside class="side off" id="side">
+  <h2 id="selTitle">Imagen elegida</h2>
+  <p class="note empty-note">Toca una imagen de la hoja para editarla. Arrástrala para moverla y usa el triángulo de la esquina para cambiar su tamaño (con Shift la deformas). Con Ctrl (o Shift) puedes elegir varias.</p>
+  <div class="sel-body">
+    <button class="act" id="bRot" type="button"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></svg>Girar</button>
+    <button class="act" id="bCrop" type="button"><svg viewBox="0 0 24 24"><path d="M7 3v14h14"/><path d="M3 7h14v14"/></svg>Recortar</button>
+    <button class="act" id="bDup" type="button"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Duplicar</button>
+    <button class="act" id="bDel" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>Quitar</button>
+    <button class="act" id="bUndeform" type="button" hidden><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Quitar deformación</button>
+    <div id="cropTools">
+      <span class="lbl">Tamaño de la imagen · <b id="czVal">100%</b></span>
+      <input id="cz" type="range" min="20" max="500" step="5" value="100" aria-label="Tamaño de la imagen">
+      <button class="btn" id="bCropReset" type="button">Restablecer tamaño</button>
+      <p class="note">Agranda o achica la imagen dentro de su marco. Doble clic sobre ella para moverla; con la rueda del mouse también acercas y alejas.</p>
+    </div>
+    <div id="scanTools">
+      <h4 class="pt">Escáner</h4>
+      <div class="pgrid">
+        <button class="act" type="button" data-flt="none">Original</button>
+        <button class="act" type="button" data-flt="magic">Mejorado</button>
+        <button class="act" type="button" data-flt="gray">Grises</button>
+        <button class="act" type="button" data-flt="bw">Documento</button>
+      </div>
+      <p class="note">Aclara y da contraste como una app de escáner. «Documento» deja solo blanco y negro. Puedes volver a Original cuando quieras.</p>
     </div>
   </div>
 </aside>

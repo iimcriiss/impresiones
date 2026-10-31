@@ -195,8 +195,18 @@
     });
   };
 
+  // Mostrar u ocultar el panel de la imagen (izquierda) para tener más espacio
+  App.toggleSide = force => {
+    const hide = force === undefined ? !document.body.classList.contains('noside') : !force;
+    document.body.classList.toggle('noside', hide);
+    $('bSide').classList.toggle('on', !hide); $('bSide').setAttribute('aria-pressed', String(!hide));
+    App.render();
+  };
+  $('bSide').onclick = () => App.toggleSide();
+
   addEventListener('keydown', e => {
     if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && e.key.toLowerCase() === 'p') { e.preventDefault(); App.toggleSide(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' && S.items.length) {
       e.preventDefault(); S.group = S.items.map(i => i.id); S.sel = S.items[S.items.length - 1].id; App.refreshSel(); return;
     }
