@@ -51,4 +51,5 @@ Sin comando de build. Las librerías (PDF y HEIC) van dentro del proyecto en `js
 - **Conversor HEIC aislado (`heic/`)**: las librerías HEIC necesitan `unsafe-eval`. Ese permiso solo existe en `heic/decoder.html` (marco oculto con su propia política); la página principal no lo tiene. Solo se comunica con la página por mensajes del mismo sitio.
 - **Límites al subir imágenes**: máximo 60 MB por archivo y 150 millones de píxeles por imagen (evita archivos que congelan o agotan la memoria del navegador).
 - **Privacidad**: las imágenes nunca salen del navegador; no hay servidor, cuentas ni cookies.
+- **Estadísticas**: se usa Cloudflare Web Analytics solo para contar visitas (según Cloudflare, sin cookies ni almacenamiento en el navegador). La política de contenido permite únicamente `static.cloudflareinsights.com` y `cloudflareinsights.com` para eso. Tus imágenes nunca se envían.
 - Si algún día incrustas la herramienta en otra página tuya (iframe), cambia `frame-ancestors` y `X-Frame-Options` en `_headers`.
