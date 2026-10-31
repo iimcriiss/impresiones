@@ -47,6 +47,8 @@
     if (S.showPages) App.renderPages();
   };
   q('[data-al]').forEach(b => b.onclick = () => App.align(b.dataset.al));
+  const ord = d => { const i = S.items.findIndex(x => x.id === S.sel); if (i >= 0) App.moveOrder(S.sel, i + d); };
+  $('bOrdPrev').onclick = () => ord(-1); $('bOrdNext').onclick = () => ord(1);
 
   /* ---- Lista de capas ---- */
   const list = $('layers');
@@ -123,6 +125,8 @@
     q('[data-need]').forEach(c => c.querySelectorAll('button,input').forEach(b => { b.disabled = !has; }));
     $('bUp').disabled = $('bTop').disabled = !has || !os.up;
     $('bDown').disabled = $('bBottom').disabled = !has || !os.down;
+    const oi = S.items.findIndex(x => x.id === S.sel), one = App.sels().length === 1;
+    $('bOrdPrev').disabled = !has || !one || oi <= 0; $('bOrdNext').disabled = !has || !one || oi >= S.items.length - 1;
     q('[data-ptab]').forEach(b => { const on = b.dataset.ptab === S.ptab; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     q('[data-ppane]').forEach(p => { p.hidden = p.dataset.ppane !== S.ptab; });
     $('bLock').classList.toggle('on', S.lock); $('bLock').setAttribute('aria-pressed', S.lock);

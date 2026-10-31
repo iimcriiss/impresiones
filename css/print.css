@@ -5,6 +5,7 @@
   #printArea{display:block}
   .pp{position:relative;width:var(--pw);height:calc(var(--ph) - .3mm);overflow:hidden;background:#fff;break-after:page}
   .pp:last-child{break-after:auto}
+  #prev,.fab{display:none!important}
   .rz{display:none!important}
   .it{outline:0!important}
 }

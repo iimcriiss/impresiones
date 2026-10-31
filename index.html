@@ -139,6 +139,7 @@
       <li><kbd>Ctrl</kbd>/<kbd>Shift</kbd> + clic: elegir varias · <kbd>Ctrl</kbd>+<kbd>A</kbd>: todas</li>
       <li>Flechas: mover 1 mm (con <kbd>Shift</kbd>, 5 mm)</li>
       <li><kbd>Alt</kbd> al arrastrar: mover sin imán</li>
+      <li>Arrastrar una imagen sobre otra: intercambiar su orden</li>
       <li><kbd>Ctrl</kbd>+<kbd>[</kbd> / <kbd>]</kbd>: bajar / subir capa</li>
       <li>Doble clic en una imagen: encuadrar · <kbd>Esc</kbd>: salir</li>
     </ul>
@@ -183,6 +184,12 @@
           <button class="act" id="bTop" type="button"><svg viewBox="0 0 24 24"><path d="M5 4h14M12 20V9M6 14l6-6 6 6"/></svg>Al frente</button>
           <button class="act" id="bBottom" type="button"><svg viewBox="0 0 24 24"><path d="M5 20h14M12 4v11M6 10l6 6 6-6"/></svg>Al fondo</button>
         </div>
+        <h4 class="pt">Orden en la cuadrícula</h4>
+        <div class="pgrid">
+          <button class="act" id="bOrdPrev" type="button"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Antes</button>
+          <button class="act" id="bOrdNext" type="button"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Después</button>
+        </div>
+        <p class="note">También puedes arrastrar una imagen sobre otra para intercambiarlas. Al cambiar la cuadrícula se respeta el orden en que las ves.</p>
         <h4 class="pt">Alinear a la hoja</h4>
         <div class="pgrid">
           <button class="act" type="button" data-al="top"><svg viewBox="0 0 24 24"><path d="M5 4h14"/><rect x="8" y="8" width="3.5" height="10" rx="1"/><rect x="13.5" y="8" width="3.5" height="6" rx="1"/></svg>Arriba</button>
@@ -223,6 +230,7 @@
 <script defer src="js/pages.js"></script>
 <script defer src="js/interactions.js"></script>
 <script defer src="js/position.js"></script>
+<script defer src="js/ruler.js"></script>
 <script defer src="js/ui.js"></script>
 <script defer src="js/export.js"></script>
 <script defer src="js/preview.js"></script>

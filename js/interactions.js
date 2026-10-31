@@ -55,7 +55,8 @@
     else if (g.length > 1) collapse = true;       // clic sobre una del grupo: si no arrastra, queda solo esa
     if (S.sel !== it.id) S.crop = false;
     S.sel = it.id;
-    drag = { it, d, mode: rz ? 'rz' : (S.crop ? 'pan' : 'mv'), collapse,
+    drag = { it, d, mode: rz ? 'rz' : (S.crop ? 'pan' : 'mv'), collapse, wasManual: S.manual,
+             slots: S.items.map(o => ({ o, x: o.x, y: o.y, w: o.w, h: o.h })),
              sx: e.clientX, sy: e.clientY, ox: it.x, oy: it.y, ow: it.w, oh: it.h, ofx: it.fx || 0, ofy: it.fy || 0,
              grp: g.map(id => { const o = App.byId(id); return { o, ox: o.x, oy: o.y }; }) };
     sheet.setPointerCapture(e.pointerId); e.preventDefault(); App.refreshSel();
@@ -81,6 +82,12 @@
   });
   ['pointerup', 'pointercancel'].forEach(t => sheet.addEventListener(t, e => {
     const was = drag; drag = null; showGuides({});
+    // En acomodo automático, soltar una imagen sobre otra las intercambia de lugar en la cuadrícula
+    if (was && t === 'pointerup' && was.mode === 'mv' && !was.wasManual && was.grp.length < 2 && Math.hypot(e.clientX - was.sx, e.clientY - was.sy) >= 4) {
+      const r = sheet.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * S.W, py = (e.clientY - r.top) / r.height * S.H;
+      const hit = was.slots.find(s => s.o !== was.it && px >= s.x && px <= s.x + s.w && py >= s.y && py <= s.y + s.h);
+      if (hit) { was.it.x = was.ox; was.it.y = was.oy; S.manual = false; App.swapOrder(was.it.id, hit.o.id); return; }
+    }
     if (was && t === 'pointerup' && was.mode !== 'rz' && Math.hypot(e.clientX - was.sx, e.clientY - was.sy) < 4) {
       if (was.collapse) { S.group = [was.it.id]; S.sel = was.it.id; App.refreshSel(); }
       // Doble toque sobre la imagen: entra o sale del encuadre

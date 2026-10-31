@@ -21,3 +21,7 @@
 # Conversor HEIC: único lugar con 'unsafe-eval' (lo piden las librerías), aislado de la página principal
 /heic/*
   Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; img-src blob: data:; connect-src 'self' blob:; worker-src 'self' blob:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'
+
+# Fuentes: llevan la versión en el nombre, se pueden guardar en caché por un año
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

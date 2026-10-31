@@ -1,13 +1,20 @@
+/* LT Saeada de LyonsType (licencia SIL OFL 1.1, ver fonts/OFL-Saeada.txt). Se usa un estilo más ligero que el pedido para que títulos y botones no se vean pesados:
+   400 = Regular, 500 y 600 = Medium, 700 = SemiBold, 800 = Bold */
+@font-face{font-family:"Saeada";font-style:normal;font-weight:400;font-display:swap;src:url("../fonts/saeada-regular.woff") format("woff")}
+@font-face{font-family:"Saeada";font-style:normal;font-weight:500;font-display:swap;src:url("../fonts/saeada-medium.woff") format("woff")}
+@font-face{font-family:"Saeada";font-style:normal;font-weight:600;font-display:swap;src:url("../fonts/saeada-medium.woff") format("woff")}
+@font-face{font-family:"Saeada";font-style:normal;font-weight:700;font-display:swap;src:url("../fonts/saeada-semibold.woff") format("woff")}
+@font-face{font-family:"Saeada";font-style:normal;font-weight:800;font-display:swap;src:url("../fonts/saeada-bold.woff") format("woff")}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
-body{font:14px/1.45 "Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);
+body{font:15px/1.55 "Saeada","Segoe UI",system-ui,sans-serif;letter-spacing:.012em;color:var(--ink);background:var(--bg);
   display:grid;grid-template-columns:280px minmax(0,1fr) 300px;grid-template-rows:auto minmax(0,1fr);gap:16px;padding:16px;height:100vh}
 body.min .drawer{display:none}
 body.min{grid-template-columns:280px minmax(0,1fr)}
 main{grid-column:2;grid-row:2}
 h2{font-size:16px;margin:0 0 12px}
-.note{color:var(--note);margin:10px 0 0;font-size:13px}
-.lbl{display:block;color:var(--note);font-size:12.5px;margin:14px 0 4px}
+.note{color:var(--note);margin:10px 0 0;font-size:14px;line-height:1.5}
+.lbl{display:block;color:var(--note);font-size:13.5px;margin:14px 0 4px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 main{min-height:0;overflow:hidden;display:flex;flex-direction:column}
 #canvas{flex:1;min-height:0;overflow:auto;display:flex;padding:16px;scrollbar-gutter:stable}

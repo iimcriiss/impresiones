@@ -16,6 +16,36 @@
     });
     S.manual = false;
   };
+  // Orden de lectura según lo que se ve ahora: filas de arriba a abajo, cada fila de izquierda a derecha
+  App.readOrder = items => {
+    const rows = [];
+    [...items].sort((a, b) => (a.y + a.h / 2) - (b.y + b.h / 2)).forEach(it => {
+      const cy = it.y + it.h / 2, r = rows[rows.length - 1];
+      if (r && cy - r.cy < r.h / 2) r.items.push(it); else rows.push({ cy, h: it.h, items: [it] });
+    });
+    return rows.flatMap(r => r.items.sort((a, b) => a.x - b.x));
+  };
+  // Si moviste imágenes a mano, antes de volver a la cuadrícula el orden pasa a ser el que ves en la hoja
+  App.keepOrder = () => {
+    const a = App.S.items; if (!App.S.manual || a.length < 2) return;
+    a.splice(0, a.length, ...App.readOrder(a));
+  };
+  // Mueve una imagen a otra posición del orden; las demás se corren y cada una toma el lugar que le toca
+  App.moveOrder = (id, to) => {
+    const a = App.S.items, from = a.findIndex(i => i.id === id); if (from < 0) return;
+    to = Math.max(0, Math.min(a.length - 1, to)); if (to === from) return;
+    const slots = a.map(i => ({ x: i.x, y: i.y, w: i.w, h: i.h }));
+    a.splice(to, 0, a.splice(from, 1)[0]);
+    a.forEach((it, i) => Object.assign(it, slots[i]));
+    App.render();
+  };
+  // Intercambia el lugar de dos imágenes
+  App.swapOrder = (ida, idb) => {
+    const a = App.S.items, i = a.findIndex(x => x.id === ida), j = a.findIndex(x => x.id === idb); if (i < 0 || j < 0 || i === j) return;
+    const A = a[i], B = a[j], sa = { x: A.x, y: A.y, w: A.w, h: A.h };
+    Object.assign(A, { x: B.x, y: B.y, w: B.w, h: B.h }); Object.assign(B, sa);
+    a[i] = B; a[j] = A; App.render();
+  };
   App.S.pm = App.S.margin; App.S.pg = App.S.gap;   // margen y espacio con los que se acomodó la hoja la última vez
   // Cambia la separación entre columnas (o filas) de un acomodo hecho a mano, sin mover el resto del orden:
   // las columnas se ensanchan o estrechan para que el conjunto siga ocupando lo mismo.

@@ -109,7 +109,7 @@
     const b = e.target.closest('button'); if (!b) return;
     const k = g.dataset.k, d = g.dataset;
     S[k] = Math.min(App.limit(k), Math.max(+d.min, S[k] + b.dataset.d * d.inc));
-    if (k === 'cols' || k === 'rows') S.manual = false;   // margen y espacio respetan lo que moviste a mano
+    if (k === 'cols' || k === 'rows') { App.keepOrder(); S.manual = false; }   // margen y espacio respetan lo que moviste a mano
     App.change();
   });
   // Escribir el valor con el teclado: Enter o salir del campo lo aplica, Esc cancela, ↑/↓ suben y bajan
@@ -118,7 +118,7 @@
     const apply = v => {
       if (isNaN(v)) { inp.value = S[k]; return; }
       S[k] = Math.min(App.limit(k), Math.max(+g.dataset.min, int ? Math.round(v) : Math.round(v * 10) / 10));
-      if (int) S.manual = false;
+      if (int) { App.keepOrder(); S.manual = false; }
       App.change(); inp.value = S[k];
     };
     inp.addEventListener('focus', () => inp.select());
@@ -134,10 +134,10 @@
     });
   });
   all('[data-preset]').forEach(b => b.onclick = () => {
-    const [c, r] = b.dataset.preset.split('x'); S.cols = +c; S.rows = +r; S.manual = false; App.change();
+    const [c, r] = b.dataset.preset.split('x'); S.cols = +c; S.rows = +r; App.keepOrder(); S.manual = false; App.change();
   });
   $('paper').onchange = e => { S.paper = e.target.value; App.change(); };
-  $('bGrid').onclick = () => { S.manual = false; App.change(); };
+  $('bGrid').onclick = () => { App.keepOrder(); S.manual = false; App.change(); };
   $('snap').onchange = e => { S.snap = e.target.checked; };
 
   $('bRot').onclick = App.rotate; $('bFit').onclick = App.toggleFit;

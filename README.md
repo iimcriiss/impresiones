@@ -16,14 +16,20 @@ hoja-impresion/
 │  ├─ layout.js        Acomodo en cuadrícula
 │  ├─ render.js        Dibujo de la hoja y zoom
 │  ├─ pages.js         Páginas y miniaturas
-│  ├─ interactions.js  Mover, redimensionar, teclado
+│  ├─ interactions.js  Mover, redimensionar, teclado, intercambiar orden arrastrando
 │  ├─ ui.js            Panel, carga de archivos, avisos
 │  ├─ export.js        Imprimir, PDF y PNG
 │  └─ main.js          Arranque
+├─ fonts/              Tipografía LT Saeada (LyonsType, licencia SIL OFL 1.1: OFL-Saeada.txt)
 ├─ heic/               Conversor HEIC aislado (decoder.html y decoder.js)
 ├─ _headers            Cabeceras de seguridad de Cloudflare Pages
 └─ assets/             Íconos y logo
 ```
+
+## Orden en la cuadrícula
+- Arrastra una imagen sobre otra para intercambiarlas (mientras la hoja esté en acomodo automático).
+- Posición → Organizar → «Orden en la cuadrícula»: Antes / Después.
+- Al cambiar columnas, filas o pulsar «Acomodar de nuevo» se respeta el orden que ves en la hoja.
 
 ## Paleta (sin degradados)
 #E7F5DC · #CFE1B9 · #B6C99B · #98A77C · #88976C · #728156 + #2B3320 solo para texto (css/tokens.css)
