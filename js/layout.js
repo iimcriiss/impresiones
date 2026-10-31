@@ -10,9 +10,12 @@
     const cw = Math.max(5, (S.W - 2*m - (c-1)*g) / c);
     const ch = Math.max(5, (S.H - 2*m - (r-1)*g) / r);
     S.items.forEach((it, i) => {
-      it.x = m + (i % c) * (cw + g);
-      it.y = m + Math.floor(i / c) * (ch + g);
-      it.w = cw; it.h = ch;
+      const x = m + (i % c) * (cw + g), y = m + Math.floor(i / c) * (ch + g);
+      let w = cw, h = ch;
+      // «Completa»: el marco toma la proporción de la imagen y queda centrado en su celda, así no sobra banda blanca.
+      // «Llenar y recortar»: el marco ocupa toda la celda.
+      if (it.fit !== 'cover') { const q = App.imgRatio(it); if (cw / ch > q) w = ch * q; else h = cw / q; }
+      it.x = x + (cw - w) / 2; it.y = y + (ch - h) / 2; it.w = w; it.h = h; it.df = false;
     });
     S.manual = false;
   };
@@ -37,6 +40,7 @@
     const slots = a.map(i => ({ x: i.x, y: i.y, w: i.w, h: i.h }));
     a.splice(to, 0, a.splice(from, 1)[0]);
     a.forEach((it, i) => Object.assign(it, slots[i]));
+    if (!App.S.manual) App.layout();
     App.render();
   };
   // Intercambia el lugar de dos imágenes
@@ -44,7 +48,9 @@
     const a = App.S.items, i = a.findIndex(x => x.id === ida), j = a.findIndex(x => x.id === idb); if (i < 0 || j < 0 || i === j) return;
     const A = a[i], B = a[j], sa = { x: A.x, y: A.y, w: A.w, h: A.h };
     Object.assign(A, { x: B.x, y: B.y, w: B.w, h: B.h }); Object.assign(B, sa);
-    a[i] = B; a[j] = A; App.render();
+    a[i] = B; a[j] = A;
+    if (!App.S.manual) App.layout();
+    App.render();
   };
   App.S.pm = App.S.margin; App.S.pg = App.S.gap;   // margen y espacio con los que se acomodó la hoja la última vez
   // Cambia la separación entre columnas (o filas) de un acomodo hecho a mano, sin mover el resto del orden:

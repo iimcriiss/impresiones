@@ -81,7 +81,7 @@
         const it = { id: 'i' + (++S.uid), name: f.name, img, src: img.src, x: 10, y: 10, w: 50, h: 50, rot: 0, fit: S.fit, z: 1, fx: 0, fy: 0, l: App.nextLayer() };
         S.items.push(it);
         if (!S.manual) App.layout();
-        else { const k = S.items.length % 5; it.w = it.h = Math.min(60, S.W / 2); it.x = 10 + k*6; it.y = 10 + k*6; }
+        else { const k = S.items.length % 5; { const q = App.imgRatio(it), m = Math.min(60, S.W / 2); it.w = q >= 1 ? m : m * q; it.h = q >= 1 ? m / q : m; } it.x = 10 + k*6; it.y = 10 + k*6; }
         S.sel = it.id; App.render();
       };
       img.onerror = () => App.toast('No se pudo abrir «' + f.name + '».');
@@ -140,17 +140,17 @@
   $('bGrid').onclick = () => { App.keepOrder(); S.manual = false; App.change(); };
   $('snap').onchange = e => { S.snap = e.target.checked; };
 
-  $('bRot').onclick = App.rotate; $('bFit').onclick = App.toggleFit;
+  $('bRot').onclick = App.rotate;
   $('bDup').onclick = App.dup;    $('bDel').onclick = App.remove;
   $('bUp').onclick = () => App.layer('up');       $('bDown').onclick = () => App.layer('down');
   $('bTop').onclick = () => App.layer('top');     $('bBottom').onclick = () => App.layer('bottom');
   $('bClear').onclick = App.clearPage;
 
   // Encuadre: mover y acercar la imagen dentro de su marco
-  $('bCrop').onclick = () => { if (!S.sel) return; S.crop = !S.crop; App.refreshSel(); };
+  $('bCrop').onclick = () => { if (S.sel) App.openCrop(); };
   $('cz').oninput = e => App.setCropZoom(+e.target.value / 100);
   $('cz').onchange = () => { if (S.showPages) App.renderPages(); };
-  $('bCropReset').onclick = () => { App.crop(it => { it.z = 1; it.fx = 0; it.fy = 0; }); $('cz').value = 100; if (S.showPages) App.renderPages(); };
+  $('bCropReset').onclick = () => { App.crop(it => { it.z = 1; it.fx = 0; it.fy = 0; }); $('cz').value = 100; $('czVal').textContent = '100%'; if (S.showPages) App.renderPages(); };
 
   // Cargar imágenes: botón, zona de arrastre, arrastrar y soltar, pegar
   $('bAdd').onclick = $('drop').onclick = () => $('file').click();

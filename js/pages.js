@@ -49,7 +49,7 @@
     add.onclick = App.addPage; box.append(add);
   };
 
-  const setZoom = z => { S.zoom = Math.min(300, Math.max(25, z)); $('zoom').value = S.zoom; $('zoomVal').textContent = S.zoom + '%'; App.fit(); };
+  const setZoom = z => { S.zoom = Math.min(500, Math.max(25, z)); $('zoom').value = S.zoom; $('zoomVal').textContent = S.zoom + '%'; App.fit(); };
   $('zoom').oninput = e => setZoom(+e.target.value);
   $('zoomVal').onclick = () => setZoom(100);
   $('canvas').addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); setZoom(S.zoom + (e.deltaY < 0 ? 10 : -10)); }, { passive: false });

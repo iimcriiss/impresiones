@@ -12,8 +12,8 @@
       const im = it.img, bw = it.w*k, bh = it.h*k, r = it.rot % 180 !== 0, iw = r ? bh : bw, ih = r ? bw : bh;
       g.save(); g.beginPath(); g.rect(it.x*k, it.y*k, bw, bh); g.clip();
       g.translate((it.x + it.w/2)*k, (it.y + it.h/2)*k); g.translate(it.fx*bw, it.fy*bh); g.rotate(it.rot * Math.PI / 180);
-      const sc = (it.fit === 'cover' ? Math.max : Math.min)(iw / im.naturalWidth, ih / im.naturalHeight) * it.z;
-      const dw = im.naturalWidth * sc, dh = im.naturalHeight * sc;
+      const [sx, sy] = App.imgScale(it, im.naturalWidth, im.naturalHeight, iw, ih);
+      const dw = im.naturalWidth * sx * it.z, dh = im.naturalHeight * sy * it.z;
       g.drawImage(im, -dw/2, -dh/2, dw, dh); g.restore();
     });
     return c;

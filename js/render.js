@@ -6,18 +6,26 @@
   function mk(it) {
     const d = document.createElement('div'); d.className = 'it'; d.dataset.id = it.id;
     const im = new Image(); im.src = it.src; im.alt = ''; d.append(im);
-    const h = document.createElement('i'); h.className = 'rz'; d.append(h);
+    const h = document.createElement('i'); h.className = 'rz'; h.title = 'Arrastra: cambia el tamaño · Shift: deformar · Doble clic: proporción original'; d.append(h);
     return d;
   }
   App.mk = mk;
+  // Escala de la imagen dentro del marco (sin acercamiento). Normal: conserva su proporción.
+  // Deformada (it.df): se estira para ocupar todo el marco, como en Paint.
+  App.imgScale = (it, nw, nh, iw, ih) => {
+    if (it.df) return [iw / nw, ih / nh];
+    const s = (it.fit === 'cover' ? Math.max : Math.min)(iw / nw, ih / nh); return [s, s];
+  };
+  // Proporción natural de la imagen tal como se ve (con el giro)
+  App.imgRatio = it => { const im = it.img; if (!im || !im.naturalWidth) return it.w / it.h; return it.rot % 180 ? im.naturalHeight / im.naturalWidth : im.naturalWidth / im.naturalHeight; };
   // Encuadre: it.z = acercamiento (1 = normal); it.fx / it.fy = desplazamiento como fracción del marco.
   // Se limita para que la imagen nunca deje un hueco ni se pierda fuera del marco.
   App.clampCrop = it => {
     it.z = it.z || 1; it.fx = it.fx || 0; it.fy = it.fy || 0;
     const im = it.img; if (!im || !im.naturalWidth) return;
     const r = it.rot % 180 !== 0, iw = r ? it.h : it.w, ih = r ? it.w : it.h;
-    const sc = (it.fit === 'cover' ? Math.max : Math.min)(iw / im.naturalWidth, ih / im.naturalHeight) * it.z;
-    const dw = im.naturalWidth * sc, dh = im.naturalHeight * sc;
+    const [sx, sy] = App.imgScale(it, im.naturalWidth, im.naturalHeight, iw, ih);
+    const dw = im.naturalWidth * sx * it.z, dh = im.naturalHeight * sy * it.z;
     const fw = r ? dh : dw, fh = r ? dw : dh;
     const bx = Math.abs(fw - it.w) / 2 / it.w, by = Math.abs(fh - it.h) / 2 / it.h;
     it.fx = Math.max(-bx, Math.min(bx, it.fx)); it.fy = Math.max(-by, Math.min(by, it.fy));
@@ -35,7 +43,7 @@
     if (nw) {
       // La imagen completa con su tamaño real dentro del marco (llenar o completa); el marco recorta lo que sobra
       const iw = r ? it.h : it.w, ih = r ? it.w : it.h;
-      const sc = (it.fit === 'cover' ? Math.max : Math.min)(iw / nw, ih / nh), dw = nw * sc, dh = nh * sc;
+      const [sx, sy] = App.imgScale(it, nw, nh, iw, ih), dw = nw * sx, dh = nh * sy;
       im.style.width = dw / it.w * 100 + '%'; im.style.height = dh / it.h * 100 + '%'; im.style.objectFit = 'fill';
       tx = it.fx * it.w / dw * 100; ty = it.fy * it.h / dh * 100;
     } else {
@@ -65,9 +73,8 @@
     sheet.classList.toggle('multi', multi); $('side').classList.toggle('multi', multi);
     $('selTitle').textContent = multi ? ids.length + ' imágenes elegidas' : 'Imagen elegida';
     $('side').classList.toggle('off', !it);
-    $('bCrop').classList.toggle('on', !!S.crop); $('bCrop').setAttribute('aria-pressed', !!S.crop);
-    $('cropTools').hidden = !S.crop;
-    if (it) { $('fitLabel').textContent = it.fit === 'cover' ? 'Mostrar completa' : 'Llenar'; $('cz').value = Math.round((it.z || 1) * 100); App.syncFields(); }
+    $('bUndeform').hidden = !(it && it.df && !multi);
+    if (it) { $('cz').value = Math.round((it.z || 1) * 100); $('czVal').textContent = Math.round((it.z || 1) * 100) + '%'; App.syncFields(); }
   };
   const canvas = $('canvas');
   // Tamaño de la hoja: ajustada a la pantalla x zoom

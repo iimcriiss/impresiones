@@ -1,0 +1,209 @@
+/* Recortar y modo escáner. Trabajan siempre sobre la imagen original (it.o) y generan una copia procesada
+   en el navegador: nada se sube a ningún servidor y siempre se puede volver al original. */
+(() => {
+  const App = window.App, $ = App.$, S = App.S;
+  const MAXSIDE = 3200;   // lado mayor de la copia procesada (A4 a ~250 ppp)
+
+  /* ---- Filtros tipo escáner (sobre los píxeles RGBA) ---- */
+  const lum = (r, g, b) => .299 * r + .587 * g + .114 * b;
+  // Rango de tonos real de la imagen (percentil 1 y 99), para estirarlo a todo el rango
+  const range = d => {
+    const h = new Uint32Array(256), n = d.length / 4;
+    for (let i = 0; i < d.length; i += 4) h[lum(d[i], d[i + 1], d[i + 2]) | 0]++;
+    let lo = 0, hi = 255, a = 0;
+    while (lo < 255 && (a += h[lo]) < n * .01) lo++;
+    a = 0; while (hi > 0 && (a += h[hi]) < n * .01) hi--;
+    lo = Math.min(lo, 110); hi = Math.max(hi, 140);   // no ennegrece un fondo gris ni apaga un blanco por una zona muy oscura o clara
+    return hi - lo < 16 ? [0, 255] : [lo, hi];
+  };
+  const cl = v => v < 0 ? 0 : v > 255 ? 255 : v;
+  const CURVE = new Uint8ClampedArray(256);   // curva en S suave: más contraste sin quemar
+  for (let i = 0; i < 256; i++) { const t = i / 255, s = t * t * (3 - 2 * t); CURVE[i] = (t + (s - t) * .4) * 255; }
+  const FX = {
+    // «Mejorado»: aclara el fondo, sube contraste y un poco de color
+    magic(d) {
+      const [lo, hi] = range(d), k = 255 / (hi - lo);
+      for (let i = 0; i < d.length; i += 4) {
+        let r = cl((d[i] - lo) * k), g = cl((d[i + 1] - lo) * k), b = cl((d[i + 2] - lo) * k);
+        const y = lum(r, g, b);
+        d[i] = CURVE[cl(y + (r - y) * 1.15) | 0]; d[i + 1] = CURVE[cl(y + (g - y) * 1.15) | 0]; d[i + 2] = CURVE[cl(y + (b - y) * 1.15) | 0];
+      }
+    },
+    // «Grises»: blanco y negro con todos los tonos, ya con el contraste estirado
+    gray(d) {
+      const [lo, hi] = range(d), k = 255 / (hi - lo);
+      for (let i = 0; i < d.length; i += 4) d[i] = d[i + 1] = d[i + 2] = CURVE[cl((lum(d[i], d[i + 1], d[i + 2]) - lo) * k) | 0];
+    },
+    // «Documento»: solo blanco y negro; el umbral se calcula por zonas, así las sombras no manchan la hoja
+    bw(d, w, h) {
+      const W = w + 1, L = new Uint8Array(w * h), I = new Uint32Array(W * (h + 1));
+      for (let y = 0, p = 0; y < h; y++) {
+        let row = 0;
+        for (let x = 0; x < w; x++, p++) { const q = p * 4; L[p] = lum(d[q], d[q + 1], d[q + 2]); row += L[p]; I[(y + 1) * W + x + 1] = I[y * W + x + 1] + row; }
+      }
+      const r = Math.max(8, Math.round(Math.max(w, h) / 24));
+      for (let y = 0, p = 0; y < h; y++) {
+        const y0 = Math.max(0, y - r), y1 = Math.min(h, y + r + 1);
+        for (let x = 0; x < w; x++, p++) {
+          const x0 = Math.max(0, x - r), x1 = Math.min(w, x + r + 1);
+          const m = (I[y1 * W + x1] - I[y0 * W + x1] - I[y1 * W + x0] + I[y0 * W + x0]) / ((x1 - x0) * (y1 - y0));
+          const v = (L[p] < 60 || L[p] < m * .9) ? 0 : 255, q = p * 4;
+          d[q] = d[q + 1] = d[q + 2] = v;
+        }
+      }
+    }
+  };
+
+  /* ---- Enderezar: gira la imagen original un ángulo libre (it.ang) sobre un lienzo blanco más grande ---- */
+  const dim = s => [s.naturalWidth || s.width, s.naturalHeight || s.height];
+  const straighten = (im, ang, cap) => {
+    if (!ang) return im;
+    const [nw, nh] = dim(im), a = ang * Math.PI / 180, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));
+    const bw = nw * c + nh * s, bh = nw * s + nh * c, k = Math.min(1, cap / Math.max(bw, bh));
+    const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(bw * k)); cv.height = Math.max(1, Math.round(bh * k));
+    const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.imageSmoothingQuality = 'high';
+    g.translate(cv.width / 2, cv.height / 2); g.rotate(a); g.drawImage(im, -nw * k / 2, -nh * k / 2, nw * k, nh * k);
+    return cv;
+  };
+
+  /* ---- Copia procesada: ángulo (it.ang) + recorte (it.cr) + filtro (it.flt) sobre el original ---- */
+  let tk = 0;
+  App.orig = it => it.o || (it.o = { img: it.img, src: it.src });
+  App.rebuild = it => new Promise(done => {
+    const o = App.orig(it), cr = it.cr, f = it.flt || 'none', ang = it.ang || 0, t = it._t = ++tk;
+    if (!cr && f === 'none' && !ang) { it.img = o.img; it.src = o.src; return done(); }
+    const im = straighten(o.img, ang, 4000), [nw, nh] = dim(im);
+    const sx = cr ? cr.l * nw : 0, sy = cr ? cr.t * nh : 0;
+    const sw = cr ? (1 - cr.l - cr.r) * nw : nw, sh = cr ? (1 - cr.t - cr.b) * nh : nh;
+    const k = Math.min(1, MAXSIDE / Math.max(sw, sh)), w = Math.max(1, Math.round(sw * k)), h = Math.max(1, Math.round(sh * k));
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d', { willReadFrequently: f !== 'none' });
+    g.drawImage(im, sx, sy, sw, sh, 0, 0, w, h);
+    if (f !== 'none') { const id = g.getImageData(0, 0, w, h); FX[f](id.data, w, h); g.putImageData(id, 0, 0); }
+    c.toBlob(b => {
+      if (!b || it._t !== t) return done();
+      const url = URL.createObjectURL(b), n = new Image();
+      n.onload = () => { if (it._t === t) { it.img = n; it.src = url; } done(); };
+      n.onerror = () => done(); n.src = url;
+    }, 'image/png');
+  });
+
+  /* ---- Escáner: botones del panel ---- */
+  const applyFilter = async f => {
+    const ids = App.sels(); if (!ids.length) return;
+    const wait = App.toast('Aplicando…');
+    for (const id of ids) { const it = App.byId(id); if (it) { it.flt = f; await App.rebuild(it); } }
+    wait.remove(); App.render();
+  };
+  document.querySelectorAll('[data-flt]').forEach(b => b.onclick = () => applyFilter(b.dataset.flt));
+  const syncScan = () => {
+    const it = App.byId(S.sel), f = (it && it.flt) || 'none';
+    document.querySelectorAll('[data-flt]').forEach(b => b.classList.toggle('on', b.dataset.flt === f));
+  };
+  const rs = App.refreshSel; App.refreshSel = () => { rs(); syncScan(); };
+
+  /* ---- Recortar: ventana con el original y un recuadro libre ---- */
+  const M = $('cropModal'), cv = $('cmCanvas'), rect = $('cmRect'), wrap = $('cmWrap'), outer = $('cmOuter'), hs = $('cmHs');
+  const rotBtn = $('cmRot'), badge = $('cmBadge');
+  let it = null, c = null, dg = null, ang = 0, raw = 0;     // c = lo que se quita en cada lado, en fracciones, tal como se ve en la ventana
+  const rot = () => ((it.rot % 360) + 360) % 360;
+  // Ventana (con la imagen girada) <-> imagen original
+  const toOrig = (d, r) => r === 0 ? { ...d } : r === 90 ? { t: d.r, r: d.b, b: d.l, l: d.t } : r === 180 ? { l: d.r, r: d.l, t: d.b, b: d.t } : { t: d.l, r: d.t, b: d.r, l: d.b };
+  const toView = (o, r) => toOrig(o, (360 - r) % 360);
+  const draw = () => {
+    [rect.style, hs.style].forEach(s => {
+      s.left = c.l * 100 + '%'; s.top = c.t * 100 + '%'; s.width = (1 - c.l - c.r) * 100 + '%'; s.height = (1 - c.t - c.b) * 100 + '%';
+    });
+  };
+  const close = () => { M.hidden = true; it = null; dg = null; };
+
+  // Dibuja en la ventana la imagen original, enderezada (ang) y girada (rot)
+  const paint = () => {
+    const o = App.orig(it).img, r = rot(), base = straighten(o, ang, 1400), [bw, bh] = dim(base);
+    const sw = r % 180 ? bh : bw, sh = r % 180 ? bw : bh, k = Math.min(1, 1000 / Math.max(sw, sh));
+    cv.width = Math.max(1, Math.round(sw * k)); cv.height = Math.max(1, Math.round(sh * k));
+    const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.save();
+    g.translate(cv.width / 2, cv.height / 2); g.rotate(r * Math.PI / 180);
+    g.drawImage(base, -bw * k / 2, -bh * k / 2, bw * k, bh * k); g.restore();
+  };
+  const fmt = v => (Math.round(v * 10) / 10).toString().replace('.', ',') + '°';
+  // Ángulo libre de -180° a 180°; se pega a 0°, ±45°, ±90° y ±135° cuando estás cerca (Alt: sin imán)
+  const setAng = (v, free) => {
+    v = ((((+v || 0) + 180) % 360) + 360) % 360 - 180;
+    raw = v;
+    if (!free) { const n = Math.round(v / 45) * 45; if (Math.abs(v - n) <= 2.5) v = n; }
+    ang = Math.round(v * 2) / 2; if (ang === 180) ang = -180;
+    badge.textContent = fmt(ang); rotBtn.setAttribute('aria-valuenow', ang);
+    paint();
+  };
+
+  App.openCrop = () => {
+    it = App.byId(S.sel); if (!it) return;
+    setAng(it.ang || 0, true);
+    c = it.cr ? toView(it.cr, rot()) : { l: 0, t: 0, r: 0, b: 0 };
+    M.hidden = false; draw(); $('cmOk').focus();
+  };
+
+  // Mover y cambiar el tamaño del recuadro (arrastrando dentro o los tiradores)
+  outer.addEventListener('pointerdown', e => {
+    const h = e.target.dataset.h || (rect.contains(e.target) ? 'm' : null); if (!h) return;
+    const b = wrap.getBoundingClientRect();
+    dg = { h, x: e.clientX, y: e.clientY, c: { ...c }, bw: b.width, bh: b.height };
+    outer.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  outer.addEventListener('pointermove', e => {
+    if (!dg) return;
+    const dx = (e.clientX - dg.x) / dg.bw, dy = (e.clientY - dg.y) / dg.bh, o = dg.c, h = dg.h, MIN = .05, n = { ...o };
+    if (h === 'm') {
+      const w = 1 - o.l - o.r, hh = 1 - o.t - o.b;
+      n.l = Math.max(0, Math.min(1 - w, o.l + dx)); n.r = 1 - w - n.l;
+      n.t = Math.max(0, Math.min(1 - hh, o.t + dy)); n.b = 1 - hh - n.t;
+    } else {
+      if (h.includes('w')) n.l = Math.max(0, Math.min(1 - o.r - MIN, o.l + dx));
+      if (h.includes('e')) n.r = Math.max(0, Math.min(1 - o.l - MIN, o.r - dx));
+      if (h.includes('n')) n.t = Math.max(0, Math.min(1 - o.b - MIN, o.t + dy));
+      if (h.includes('s')) n.b = Math.max(0, Math.min(1 - o.t - MIN, o.b - dy));
+    }
+    c = n; draw();
+  });
+  ['pointerup', 'pointercancel'].forEach(t => outer.addEventListener(t, () => { dg = null; }));
+
+  // Botón de girar (debajo de la imagen): arrastra alrededor del centro. Shift: de 15° en 15°. Alt: sin imán.
+  let spin = null;
+  const pAng = e => { const r = wrap.getBoundingClientRect(); return Math.atan2(e.clientX - (r.left + r.width / 2), -(e.clientY - (r.top + r.height / 2))) * 180 / Math.PI; };
+  rotBtn.addEventListener('pointerdown', e => {
+    spin = { last: pAng(e) }; rotBtn.setPointerCapture(e.pointerId); wrap.classList.add('grid'); badge.classList.add('on'); e.preventDefault();
+  });
+  rotBtn.addEventListener('pointermove', e => {
+    if (!spin) return;
+    const a = pAng(e); let d = a - spin.last; d = d > 180 ? d - 360 : d < -180 ? d + 360 : d; spin.last = a;
+    let v = raw + d;
+    if (e.shiftKey) { raw = v; setAng(Math.round(v / 15) * 15, true); raw = v; } else setAng(v, e.altKey);
+  });
+  ['pointerup', 'pointercancel'].forEach(t => rotBtn.addEventListener(t, () => { spin = null; wrap.classList.remove('grid'); badge.classList.remove('on'); }));
+  rotBtn.addEventListener('dblclick', () => setAng(0, true));
+  rotBtn.addEventListener('wheel', e => { e.preventDefault(); setAng(ang + (e.deltaY < 0 ? 1 : -1), true); }, { passive: false });
+  rotBtn.addEventListener('keydown', e => {
+    const st = e.shiftKey ? 5 : .5;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') setAng(ang + st, true);
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') setAng(ang - st, true);
+    else if (e.key === 'Home' || e.key === '0') setAng(0, true);
+    else return;
+    e.preventDefault();
+  });
+
+  $('cmReset').onclick = () => { c = { l: 0, t: 0, r: 0, b: 0 }; setAng(0, true); draw(); };
+  $('cmCancel').onclick = close;
+  M.addEventListener('pointerdown', e => { if (e.target === M) close(); });
+  $('cmOk').onclick = async () => {
+    const x = it, o = toOrig(c, rot());
+    x.cr = ['l', 't', 'r', 'b'].every(k => o[k] < .002) ? null : { l: o.l, t: o.t, r: o.r, b: o.b };
+    x.ang = ang || 0;
+    x.z = 1; x.fx = 0; x.fy = 0; close();
+    const wait = App.toast('Recortando…'); await App.rebuild(x); wait.remove();
+    if (!S.manual) App.layout();        // el marco se ajusta a la nueva proporción
+    App.render();
+  };
+  // Con la ventana abierta, el teclado no debe mover ni borrar imágenes de la hoja
+  addEventListener('keydown', e => { if (M.hidden) return; if (e.key === 'Escape') close(); if (!M.contains(e.target)) e.stopPropagation(); }, true);
+})();

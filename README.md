@@ -18,6 +18,7 @@ hoja-impresion/
 │  ├─ pages.js         Páginas y miniaturas
 │  ├─ interactions.js  Mover, redimensionar, teclado, intercambiar orden arrastrando
 │  ├─ ui.js            Panel, carga de archivos, avisos
+│  ├─ scan.js          Recortar (ventana con ángulo libre) y modo escáner (Original, Mejorado, Grises, Documento)
 │  ├─ export.js        Imprimir, PDF y PNG
 │  └─ main.js          Arranque
 ├─ fonts/              Tipografía LT Saeada (LyonsType, licencia SIL OFL 1.1: OFL-Saeada.txt)
@@ -30,6 +31,12 @@ hoja-impresion/
 - Arrastra una imagen sobre otra para intercambiarlas (mientras la hoja esté en acomodo automático).
 - Posición → Organizar → «Orden en la cuadrícula»: Antes / Después.
 - Al cambiar columnas, filas o pulsar «Acomodar de nuevo» se respeta el orden que ves en la hoja.
+
+## Editar una imagen
+- Triángulo de la esquina: cambia el tamaño conservando la proporción; con Shift deforma; doble clic vuelve a la proporción original.
+- Recortar: tiradores redondos (esquinas) y barras (lados); botón de girar debajo de la imagen (-180° a 180°, imán a 0°/45°/90°, Shift de 15° en 15°, Alt sin imán, doble clic 0°).
+- Tamaño de la imagen: 20% a 500%; doble clic para moverla dentro del marco; rueda del mouse para acercar y alejar.
+- En acomodo automático el marco toma la proporción de la imagen (sin banda blanca).
 
 ## Paleta (sin degradados)
 #E7F5DC · #CFE1B9 · #B6C99B · #98A77C · #88976C · #728156 + #2B3320 solo para texto (css/tokens.css)

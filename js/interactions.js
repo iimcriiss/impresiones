@@ -1,7 +1,7 @@
 /* Mover, redimensionar, teclado y acciones de la barra */
 (() => {
   const App = window.App, $ = App.$, S = App.S, sheet = $('sheet');
-  let drag = null, lastId = null, lastT = 0;
+  let drag = null, lastId = null, lastT = 0, lastRz = null, lastRzT = 0;
   const el = id => sheet.querySelector(`.it[data-id="${id}"]`);
 
   // Ajuste automático: pega bordes/centros a la hoja, los márgenes y las otras imágenes
@@ -41,7 +41,7 @@
     if (!d) { S.sel = null; S.group = []; App.refreshSel(); return; }
     const it = App.byId(d.dataset.id);
     const rz = e.target.classList.contains('rz') && App.sels().length < 2;
-    const add = e.ctrlKey || e.metaKey || e.shiftKey;
+    const add = !rz && (e.ctrlKey || e.metaKey || e.shiftKey);
     let g = App.sels(), collapse = false;
     if (add) {
       // Ctrl / Shift + clic: suma o quita esta imagen de la selección
@@ -55,7 +55,8 @@
     else if (g.length > 1) collapse = true;       // clic sobre una del grupo: si no arrastra, queda solo esa
     if (S.sel !== it.id) S.crop = false;
     S.sel = it.id;
-    drag = { it, d, mode: rz ? 'rz' : (S.crop ? 'pan' : 'mv'), collapse, wasManual: S.manual,
+    const q = it.df ? it.w / it.h : App.imgRatio(it), fat = it.w / it.h > q;   // base proporcional: el recuadro más grande con la proporción de la imagen que cabe en el marco
+    drag = { it, d, q, prev: { x: it.x, y: it.y, w: it.w, h: it.h, df: !!it.df, manual: S.manual }, pw: fat ? it.h * q : it.w, ph: fat ? it.h : it.w / q, mode: rz ? 'rz' : (S.crop ? 'pan' : 'mv'), collapse, wasManual: S.manual,
              slots: S.items.map(o => ({ o, x: o.x, y: o.y, w: o.w, h: o.h })),
              sx: e.clientX, sy: e.clientY, ox: it.x, oy: it.y, ow: it.w, oh: it.h, ofx: it.fx || 0, ofy: it.fy || 0,
              grp: g.map(id => { const o = App.byId(id); return { o, ox: o.x, oy: o.y }; }) };
@@ -70,9 +71,15 @@
       App.place(drag.d, it); return;
     }
     if (drag.mode === 'mv') { it.x = drag.ox + dx; it.y = drag.oy + dy; }
-    else { it.w = Math.max(5, drag.ow + dx); it.h = Math.max(5, drag.oh + dy); }
+    else if (e.shiftKey) { it.w = Math.max(5, drag.ow + dx); it.h = Math.max(5, drag.oh + dy); }   // Shift: deformar libremente
+    else { it.w = Math.max(5, drag.pw + dx, (drag.ph + dy) * drag.q); it.h = it.w / drag.q; }       // normal: conserva la proporción
     const skip = drag.mode === 'mv' ? new Set(drag.grp.map(g => g.o.id)) : null;
-    showGuides(S.snap && !e.altKey ? snap(it, drag.mode, k, skip) : {});
+    const gd = S.snap && !e.altKey ? snap(it, drag.mode, k, skip) : {};
+    if (drag.mode === 'rz') {
+      if (!e.shiftKey) { if (gd.x != null) it.h = it.w / drag.q; else if (gd.y != null) it.w = it.h * drag.q; }
+      it.df = Math.abs(it.w / it.h / App.imgRatio(it) - 1) > .01;      // deformada si el marco ya no tiene la proporción de la imagen
+    }
+    showGuides(gd);
     if (drag.mode === 'mv') {
       // el resto de la selección se mueve lo mismo que la principal
       const ddx = it.x - drag.ox, ddy = it.y - drag.oy;
@@ -87,6 +94,17 @@
       const r = sheet.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * S.W, py = (e.clientY - r.top) / r.height * S.H;
       const hit = was.slots.find(s => s.o !== was.it && px >= s.x && px <= s.x + s.w && py >= s.y && py <= s.y + s.h);
       if (hit) { was.it.x = was.ox; was.it.y = was.oy; S.manual = false; App.swapOrder(was.it.id, hit.o.id); return; }
+    }
+    // Triángulo: si se arrastró, se puede deshacer; doble clic vuelve a la proporción original
+    if (was && t === 'pointerup' && was.mode === 'rz') {
+      if (Math.hypot(e.clientX - was.sx, e.clientY - was.sy) >= 4) {
+        undoRz = { it: was.it, prev: was.prev };
+        App.toast(was.it.df ? 'Imagen deformada' : 'Tamaño cambiado', 'Deshacer', App.undoResize); App.refreshSel();
+      } else {
+        const now = performance.now();
+        if (lastRz === was.it.id && now - lastRzT < 350) { lastRz = null; App.resetShape(was.it); }
+        else { lastRz = was.it.id; lastRzT = now; }
+      }
     }
     if (was && t === 'pointerup' && was.mode !== 'rz' && Math.hypot(e.clientX - was.sx, e.clientY - was.sy) < 4) {
       if (was.collapse) { S.group = [was.it.id]; S.sel = was.it.id; App.refreshSel(); }
@@ -103,7 +121,7 @@
     const it = App.byId(S.sel); if (!it) return;
     fn(it); const d = el(it.id); if (d) App.place(d, it);
   };
-  App.setCropZoom = z => App.crop(it => { it.z = Math.min(5, Math.max(1, z)); });
+  App.setCropZoom = z => App.crop(it => { it.z = Math.min(5, Math.max(.2, z)); $('cz').value = Math.round(it.z * 100); $('czVal').textContent = Math.round(it.z * 100) + '%'; });
   sheet.addEventListener('wheel', e => {
     if (!S.crop || !S.sel || e.ctrlKey || !e.target.closest('.it')) return;
     e.preventDefault();
@@ -112,11 +130,27 @@
     if (S.showPages) App.renderPages();
   }, { passive: false });
 
-  App.rotate = () => App.edit(it => { it.rot = (it.rot + 90) % 360; });
-  App.toggleFit = () => {
-    const p = App.byId(S.sel); if (!p) return;
-    const t = p.fit === 'cover' ? 'contain' : 'cover';
-    App.edit(it => { it.fit = t; }); App.refreshSel();
+  // Deshacer el último cambio de tamaño o deformación hecho con el triángulo
+  let undoRz = null;
+  App.undoResize = () => {
+    const u = undoRz; if (!u || !S.items.includes(u.it)) return false;
+    Object.assign(u.it, { x: u.prev.x, y: u.prev.y, w: u.prev.w, h: u.prev.h, df: u.prev.df }); S.manual = u.prev.manual; undoRz = null;
+    const d = el(u.it.id); if (d) App.place(d, u.it);
+    App.syncFields(); App.refreshSel(); if (S.showPages) App.renderPages(); return true;
+  };
+  // Vuelve la imagen a la proporción original (quita la deformación)
+  App.resetShape = it => {
+    if (!it) return;
+    undoRz = { it, prev: { x: it.x, y: it.y, w: it.w, h: it.h, df: !!it.df, manual: S.manual } };
+    it.df = false; it.h = it.w / App.imgRatio(it); S.manual = true;
+    const d = el(it.id); if (d) App.place(d, it);
+    App.syncFields(); App.refreshSel(); if (S.showPages) App.renderPages();
+  };
+  $('bUndeform').onclick = () => App.resetShape(App.byId(S.sel));
+  App.rotate = () => {
+    const was = S.manual;
+    App.edit(it => { it.rot = (it.rot + 90) % 360; });
+    if (!was) { App.layout(); App.render(); }     // en acomodo automático el marco se ajusta a la imagen girada
   };
   App.dup = () => {
     const ids = App.sels(); if (!ids.length) return;
@@ -166,6 +200,7 @@
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' && S.items.length) {
       e.preventDefault(); S.group = S.items.map(i => i.id); S.sel = S.items[S.items.length - 1].id; App.refreshSel(); return;
     }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { if (App.undoResize()) e.preventDefault(); return; }
     if (!S.sel) return;
     if ((e.ctrlKey || e.metaKey) && (e.key === ']' || e.key === '[')) { e.preventDefault(); App.layer(e.key === ']' ? (e.shiftKey ? 'top' : 'up') : (e.shiftKey ? 'bottom' : 'down')); return; }
     if (e.key === 'Escape') {
