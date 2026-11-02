@@ -3,10 +3,12 @@
   const App = window.App, $ = App.$, S = App.S, all = s => document.querySelectorAll(s);
 
   App.toast = (msg, label, fn) => {
-    const t = document.createElement('div'); t.className = 'toast';
+    const box = $('toasts'), key = msg + '|' + (label || '');
+    [...box.children].forEach(c => { if (c.dataset.k === key) c.remove(); });      // un aviso igual no se apila: reemplaza al anterior
+    const t = document.createElement('div'); t.className = 'toast'; t.dataset.k = key;
     const s = document.createElement('span'); s.textContent = msg; t.append(s);
     if (label) { const b = document.createElement('button'); b.textContent = label; b.onclick = () => { fn(); t.remove(); }; t.append(b); }
-    $('toasts').append(t); setTimeout(() => t.remove(), 5000); return t;
+    box.append(t); setTimeout(() => t.remove(), 5000); return t;
   };
 
   // HEIC/HEIF: se prueba (1) el navegador, (2) libheif-js y (3) heic2any; se baja solo si hace falta

@@ -195,6 +195,31 @@
     });
   };
 
+  // Cortar / copiar / pegar (Ctrl + X / C / V): sirve para mover imágenes a otro lugar o a otra página
+  let ptr = null;
+  sheet.addEventListener('pointermove', e => { const r = sheet.getBoundingClientRect(); ptr = { x: (e.clientX - r.left) / r.width * S.W, y: (e.clientY - r.top) / r.height * S.H }; });
+  sheet.addEventListener('pointerleave', () => { ptr = null; });
+  App.copySel = cut => { App.clip = App.sels().map(id => ({ ...App.byId(id) })); App.clipCut = !!cut; };
+  App.pasteClip = () => {
+    const src = App.clip; if (!src || !src.length) return false;
+    const bx = Math.min(...src.map(i => i.x)), by = Math.min(...src.map(i => i.y));
+    const bw = Math.max(...src.map(i => i.x + i.w)) - bx, bh = Math.max(...src.map(i => i.y + i.h)) - by;
+    // con el mouse sobre la hoja: se pega ahí (centrado en el puntero); si no, en el mismo lugar con un pequeño corrimiento
+    let nx = ptr ? ptr.x - bw / 2 : bx + 5, ny = ptr ? ptr.y - bh / 2 : by + 5;
+    nx = Math.max(0, Math.min(S.W - bw, nx)); ny = Math.max(0, Math.min(S.H - bh, ny));
+    const cs = src.map(it => ({ ...it, id: 'i' + (++S.uid), x: it.x - bx + nx, y: it.y - by + ny, l: App.nextLayer() }));
+    cs.forEach((c, i) => { c.l += i; S.items.push(c); });
+    S.group = cs.map(c => c.id); S.sel = cs[cs.length - 1].id;
+    if (ptr || S.manual) S.manual = true; else App.layout();
+    if (App.clipCut) { App.clip = null; App.clipCut = false; }      // lo cortado se pega una sola vez (es mover, no copiar)
+    App.render(); return true;
+  };
+  addEventListener('paste', e => {
+    if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+    const f = e.clipboardData && e.clipboardData.files; if (f && f.length) return;   // imágenes del portapapeles del sistema: las maneja ui.js
+    if (App.pasteClip()) e.preventDefault();
+  });
+
   // Mostrar u ocultar el panel de la imagen (izquierda) para tener más espacio
   App.toggleSide = force => {
     const hide = force === undefined ? !document.body.classList.contains('noside') : !force;
@@ -211,6 +236,12 @@
       e.preventDefault(); S.group = S.items.map(i => i.id); S.sel = S.items[S.items.length - 1].id; App.refreshSel(); return;
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { if (App.undoResize()) e.preventDefault(); return; }
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key.toLowerCase() === 'x' || e.key.toLowerCase() === 'c') && S.sel) {
+      e.preventDefault(); const cut = e.key.toLowerCase() === 'x'; App.copySel(cut);
+      if (cut) { App.remove(); App.toast('Imagen cortada · cambia de página o lugar y presiona Ctrl + V'); }
+      else App.toast('Imagen copiada · presiona Ctrl + V para pegarla');
+      return;
+    }
     if (!S.sel) return;
     if ((e.ctrlKey || e.metaKey) && (e.key === ']' || e.key === '[')) { e.preventDefault(); App.layer(e.key === ']' ? (e.shiftKey ? 'top' : 'up') : (e.shiftKey ? 'bottom' : 'down')); return; }
     if (e.key === 'Escape') {
