@@ -74,6 +74,15 @@
       end = ns + (t.e - t.s) * f;
     });
   };
+  // Ajusta el marco a la proporción de la imagen (sin bandas blancas), centrado donde estaba y dentro de la hoja.
+  // No toca las imágenes deformadas a propósito ni las de «Llenar y recortar».
+  App.refit = it => {
+    const S = App.S; if (it.df || it.fit === 'cover') return;
+    const q = App.imgRatio(it), cx = it.x + it.w / 2, cy = it.y + it.h / 2;
+    let w = it.w, h = it.h; if (w / h > q) w = h * q; else h = w / q;
+    const k = Math.min(1, S.W / w, S.H / h); w *= k; h *= k;
+    it.w = w; it.h = h; it.x = Math.max(0, Math.min(S.W - w, cx - w / 2)); it.y = Math.max(0, Math.min(S.H - h, cy - h / 2));
+  };
   // Reacomoda todas las páginas: las automáticas se recalculan; las editadas a mano
   // (si cambió el tamaño o la orientación del papel) se escalan para que no se salgan de la hoja.
   App.relayout = (oW, oH) => {
@@ -89,7 +98,16 @@
           const ow = oW - 2 * oM, oh = oH - 2 * oM, nw = S.W - 2 * S.margin, nh = S.H - 2 * S.margin;
           if (ow > 0 && oh > 0 && nw > 0 && nh > 0) {
             const kx = nw / ow, ky = nh / oh;
-            S.items.forEach(it => { it.x = S.margin + (it.x - oM) * kx; it.w *= kx; it.y = S.margin + (it.y - oM) * ky; it.h *= ky; });
+            const kk = Math.sqrt(kx * ky);      // escala pareja: la imagen conserva su tamaño y su forma al ir de vertical a horizontal y volver
+            S.items.forEach(it => {
+              const stretch = it.df || it.fit === 'cover';      // deformadas y «Llenar y recortar» sí se estiran con la hoja
+              const cx = S.margin + (it.x + it.w / 2 - oM) * kx, cy = S.margin + (it.y + it.h / 2 - oM) * ky;      // el centro se mueve con la hoja
+              it.w *= stretch ? kx : kk; it.h *= stretch ? ky : kk;
+              it.x = cx - it.w / 2; it.y = cy - it.h / 2;
+              App.refit(it);
+              it.w = Math.max(5, Math.min(S.W, it.w)); it.h = Math.max(5, Math.min(S.H, it.h));      // nunca fuera de la hoja
+              it.x = Math.max(0, Math.min(S.W - it.w, it.x)); it.y = Math.max(0, Math.min(S.H - it.h, it.y));
+            });
           }
         }
         if (S.gap !== oG) { respace(S.items, 'x', 'w', S.gap - oG); respace(S.items, 'y', 'h', S.gap - oG); }

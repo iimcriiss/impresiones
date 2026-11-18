@@ -18,10 +18,10 @@
   const setF = (id, v) => {
     const it = App.byId(S.sel); if (!it || isNaN(v)) return;
     const r = it.h / it.w;
-    if (id === 'fx') it.x = v;
-    else if (id === 'fy') it.y = v;
-    else if (id === 'fex') { it.w = Math.max(5, v - it.x); if (S.lock) it.h = Math.max(5, it.w * r); }
-    else { it.h = Math.max(5, v - it.y); if (S.lock) it.w = Math.max(5, it.h / r); }
+    if (id === 'fx') it.x = Math.max(0, Math.min(S.W - it.w, v));
+    else if (id === 'fy') it.y = Math.max(0, Math.min(S.H - it.h, v));
+    else if (id === 'fex') { it.w = Math.max(5, Math.min(S.W, v) - it.x); if (S.lock) it.h = Math.max(5, it.w * r); }
+    else { it.h = Math.max(5, Math.min(S.H, v) - it.y); if (S.lock) it.w = Math.max(5, it.h / r); }
     S.manual = true;
     const d = el(it.id); if (d) App.place(d, it);
     if (S.showPages) App.renderPages();

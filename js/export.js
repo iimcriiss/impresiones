@@ -7,17 +7,17 @@
     const k = dpi / 25.4, c = document.createElement('canvas');
     c.width = Math.round(S.W * k); c.height = Math.round(S.H * k);
     const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
-    items.forEach(it => {
-      App.clampCrop(it);
-      const im = it.img, bw = it.w*k, bh = it.h*k, r = it.rot % 180 !== 0, iw = r ? bh : bw, ih = r ? bw : bh;
-      g.save(); g.beginPath(); g.rect(it.x*k, it.y*k, bw, bh); g.clip();
-      g.translate((it.x + it.w/2)*k, (it.y + it.h/2)*k); g.translate(it.fx*bw, it.fy*bh); g.rotate(it.rot * Math.PI / 180);
-      const [sx, sy] = App.imgScale(it, im.naturalWidth, im.naturalHeight, iw, ih);
-      const dw = im.naturalWidth * sx * it.z, dh = im.naturalHeight * sy * it.z;
-      g.drawImage(im, -dw/2, -dh/2, dw, dh); g.restore();
-    });
+    items.forEach(it => App.drawItem(g, it, k));      // mismo dibujo que en pantalla: espejo, borde y esquinas (js/borde.js)
+    const mk = App.marksSegs ? App.marksSegs(items, S.marks) : null;      // marcas de corte
+    if (mk && mk.segs.length) {
+      g.save(); g.strokeStyle = '#000'; g.lineWidth = Math.max(1, .2 * k); g.lineCap = 'butt';
+      if (mk.dash) g.setLineDash([2 * k, 1.5 * k]);
+      g.beginPath(); mk.segs.forEach(s => { g.moveTo(s[0] * k, s[1] * k); g.lineTo(s[2] * k, s[3] * k); }); g.stroke(); g.restore();
+    }
     return c;
   }
+  // Calidad de papel: 300 ppp (antes 200). Tope de ~9000 px por lado para no agotar la memoria en hojas muy grandes.
+  const DPI = () => Math.min(300, 9000 / (Math.max(S.W, S.H) / 25.4));
   const need = () => { if (filled().length) return true; App.toast('Primero agrega al menos una imagen.'); return false; };
 
   // Al imprimir se arma una copia de cada página (también con Ctrl+P)
@@ -26,6 +26,7 @@
     filled().forEach(p => {
       const pg = document.createElement('div'); pg.className = 'pp';
       p.items.forEach(it => { const d = App.mk(it); pg.append(d); App.place(d, it); });
+      const m = App.marksEl && App.marksEl(p.items, { color: '#000', w: .2 }); if (m) pg.append(m);
       box.append(pg);
     });
   };
@@ -37,7 +38,7 @@
     if (!need()) return;
     const pages = filled();
     if (pages.length > 1) App.toast('Se descargarán ' + pages.length + ' imágenes, una por página.');
-    pages.forEach((p, i) => setTimeout(() => toCanvas(p.items, 200).toBlob(b => {
+    pages.forEach((p, i) => setTimeout(() => toCanvas(p.items, DPI()).toBlob(b => {
       const a = document.createElement('a'); a.href = URL.createObjectURL(b);
       a.download = pages.length > 1 ? 'hoja-' + (i + 1) + '.png' : 'hoja.png'; a.click();
     }), i * 400));
@@ -49,7 +50,7 @@
     const doc = new jspdf.jsPDF({ orientation: o, unit: 'mm', format: f });
     filled().forEach((p, i) => {
       if (i) doc.addPage(f, o);
-      doc.addImage(toCanvas(p.items, 200).toDataURL('image/jpeg', .95), 'JPEG', 0, 0, S.W, S.H);
+      doc.addImage(toCanvas(p.items, DPI()).toDataURL('image/jpeg', .98), 'JPEG', 0, 0, S.W, S.H);
     });
     doc.save('hoja.pdf');
   };

@@ -2,7 +2,7 @@
    en el navegador: nada se sube a ningún servidor y siempre se puede volver al original. */
 (() => {
   const App = window.App, $ = App.$, S = App.S;
-  const MAXSIDE = 3200;   // lado mayor de la copia procesada (A4 a ~250 ppp)
+  const MAXSIDE = 3508;   // lado mayor de la copia procesada (A4 a 300 ppp)
 
   /* ---- Filtros tipo escáner (sobre los píxeles RGBA) ---- */
   const lum = (r, g, b) => .299 * r + .587 * g + .114 * b;
@@ -106,7 +106,7 @@
   const M = $('cropModal'), cv = $('cmCanvas'), rect = $('cmRect'), wrap = $('cmWrap'), outer = $('cmOuter'), hs = $('cmHs');
   const rotBtn = $('cmRot'), badge = $('cmBadge');
   let it = null, c = null, dg = null, ang = 0, raw = 0;     // c = lo que se quita en cada lado, en fracciones, tal como se ve en la ventana
-  const rot = () => ((it.rot % 360) + 360) % 360;
+  const rot = () => it ? ((it.rot % 360) + 360) % 360 : 0;
   // Ventana (con la imagen girada) <-> imagen original
   const toOrig = (d, r) => r === 0 ? { ...d } : r === 90 ? { t: d.r, r: d.b, b: d.l, l: d.t } : r === 180 ? { l: d.r, r: d.l, t: d.b, b: d.t } : { t: d.l, r: d.t, b: d.r, l: d.b };
   const toView = (o, r) => toOrig(o, (360 - r) % 360);
@@ -288,16 +288,22 @@
   };
   $('cmAuto').onclick = autoCrop;
 
-  $('cmReset').onclick = () => { c = { l: 0, t: 0, r: 0, b: 0 }; setAng(0, true); draw(); };
+  $('cmReset').onclick = () => { if (!it) return; c = { l: 0, t: 0, r: 0, b: 0 }; setAng(0, true); draw(); };
   $('cmCancel').onclick = close;
   M.addEventListener('pointerdown', e => { if (e.target === M) close(); });
   $('cmOk').onclick = async () => {
+    if (!it || !c) return;      // la ventana ya se cerró
     const x = it, o = toOrig(c, rot());
     x.cr = ['l', 't', 'r', 'b'].every(k => o[k] < .002) ? null : { l: o.l, t: o.t, r: o.r, b: o.b };
     x.ang = ang || 0;
     x.z = 1; x.fx = 0; x.fy = 0; close();
     const wait = App.toast('Recortando…'); await App.rebuild(x); wait.remove();
     if (!S.manual) App.layout();        // el marco se ajusta a la nueva proporción
+    else if (x.fit !== 'cover' && !x.df) {   // acomodo manual: el marco conserva su centro y toma la proporción de lo recortado
+      const q = App.imgRatio(x), cx = x.x + x.w / 2, cy = x.y + x.h / 2; let w = x.w, h = x.h;
+      if (w / h > q) w = h * q; else h = w / q;
+      Object.assign(x, { w, h, x: cx - w / 2, y: cy - h / 2 });
+    }
     App.render();
   };
   // Con la ventana abierta, el teclado no debe mover ni borrar imágenes de la hoja

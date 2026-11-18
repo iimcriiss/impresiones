@@ -1,0 +1,157 @@
+/* Cristal (liquid glass), modo claro/oscuro, pestañas Carnet y Medir.
+   Se activa con las clases de <html>: .glass (cristal) y data-theme="light|dark" (ver js/theme.js).
+   Sin la clase .glass la página se ve como antes. */
+
+/* ---------- Pestañas extra de la barra (Carnet y Medir) ---------- */
+.xtab{position:relative;z-index:1;height:46px;display:flex;align-items:center;gap:8px;padding:0 18px 0 14px;border:0;border-radius:23px;background:transparent;color:var(--ink);font-weight:600;font-size:14px;line-height:1;font-family:inherit;cursor:pointer;transition:background .25s,transform .45s var(--spring)}
+.xtab:hover{background:var(--c2)}
+.xtab:active{transform:scale(.96)}
+.xtab svg{transition:transform .45s var(--spring)}
+.xtab:hover svg{transform:scale(1.12) rotate(-4deg)}
+@media(max-width:700px){.xtab .lb{display:none}.xtab{padding:0 14px}}
+
+/* ---------- Botones de cristal y de tema ---------- */
+/* Imprimir y Ayuda van a la derecha de la barra, seguidos de los botones de cristal y tema */
+.rail .tab[data-tab="out"]{margin-left:auto}
+.opts{margin-left:8px;align-self:center;display:flex;gap:6px}
+.optb{width:42px;height:42px;display:grid;place-items:center;padding:0;border:1px solid var(--c3);border-radius:50%;background:var(--c2);color:var(--ink);cursor:pointer;transition:background .2s,transform .35s var(--spring)}
+.optb:hover{background:var(--c3);transform:translateY(-1px)}
+.optb[aria-pressed="true"]{background:var(--c6);border-color:var(--c6);color:var(--c1)}
+.optb svg{width:20px;height:20px}
+.optb .i-sun{display:none}
+html[data-theme="light"] .optb .i-sun{display:inline}
+html[data-theme="light"] .optb .i-moon{display:none}
+
+/* ---------- Modo claro (también sin cristal) ---------- */
+html[data-theme="light"]{--bg:#C9DEEE}
+html[data-theme="light"] #sheet{box-shadow:0 18px 50px -18px rgba(2,44,80,.55),0 0 0 1px rgba(2,44,80,.1)}
+
+/* ---------- Fondo con manchas de color (lo que el cristal desenfoca) ---------- */
+.orbs{display:none}
+html.glass{background:var(--bg)}
+html.glass body{background:transparent;background-image:none}
+html.glass .orbs{display:block;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.orbs i{position:absolute;border-radius:50%;filter:blur(90px)}
+.orbs i:nth-child(1){width:55vmax;height:55vmax;left:-14vmax;top:-10vmax;background:#0F4C81;opacity:.9}
+.orbs i:nth-child(2){width:42vmax;height:42vmax;right:-10vmax;bottom:-12vmax;background:#58A1D3;opacity:.7}
+.orbs i:nth-child(3){width:26vmax;height:26vmax;left:42%;top:38%;background:#B3DEF8;opacity:.28}
+html[data-theme="light"] .orbs i:nth-child(1){background:#58A1D3;opacity:.55}
+html[data-theme="light"] .orbs i:nth-child(2){background:#B3DEF8;opacity:1}
+html[data-theme="light"] .orbs i:nth-child(3){background:#0F4C81;opacity:.18}
+
+/* ---------- Variables del cristal ---------- */
+html.glass{
+  --g-bg:rgba(255,255,255,.09);--g-in:rgba(255,255,255,.08);--g-inh:rgba(255,255,255,.17);
+  --g-hi:rgba(255,255,255,.32);--g-ln:rgba(255,255,255,.2);--g-trk:rgba(255,255,255,.28);
+  --g-act:rgba(88,161,211,.52);--g-acth:rgba(88,161,211,.7);--g-solid:rgba(10,34,64,.94);
+  --g-sh:0 16px 44px -14px rgba(0,8,24,.7);--gblur:blur(22px) saturate(1.6);
+  --ink:#EAF5FD;--note:rgba(214,235,250,.8);--glow:rgba(88,161,211,.45)}
+html.glass[data-theme="light"]{
+  --g-bg:rgba(255,255,255,.4);--g-in:rgba(255,255,255,.55);--g-inh:rgba(255,255,255,.82);
+  --g-hi:rgba(255,255,255,.95);--g-ln:rgba(255,255,255,.75);--g-trk:rgba(2,44,80,.25);
+  --g-act:rgba(2,44,80,.82);--g-acth:rgba(15,76,129,.92);--g-solid:rgba(244,250,254,.95);
+  --g-sh:0 16px 44px -16px rgba(15,76,129,.4);
+  --ink:#022C50;--note:#2F5878;--glow:rgba(15,76,129,.3)}
+
+/* ---------- Superficies de cristal ---------- */
+html.glass .rail,html.glass .drawer,html.glass .side,html.glass .bar,html.glass #pages,html.glass .toast,html.glass .cm-box,html.glass .pv-cap{
+  background:var(--g-bg);border:1px solid var(--g-ln);color:var(--ink);
+  box-shadow:var(--g-sh),inset 0 1px 0 var(--g-hi);
+  -webkit-backdrop-filter:var(--gblur);backdrop-filter:var(--gblur)}
+html.glass .pmenu,html.glass .pv-panel{background:var(--g-solid);border:1px solid var(--g-ln);color:var(--ink);box-shadow:var(--g-sh),inset 0 1px 0 var(--g-hi)}
+html.glass .cm{background:rgba(6,23,46,.5)}
+html.glass[data-theme="light"] .cm{background:rgba(201,222,238,.5)}
+html.glass #prev{background:rgba(6,23,46,.5);-webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4)}
+html.glass[data-theme="light"] #prev{background:rgba(205,225,240,.55)}
+html.glass .sub{border-top-color:var(--g-ln)}
+
+/* ---------- Barra superior ---------- */
+html.glass .pill{background:var(--g-act);border:1px solid var(--g-hi);box-shadow:inset 0 1px 0 var(--g-hi),0 6px 18px -6px rgba(2,44,80,.7)}
+html.glass .tab.on,html.glass .tab.on:hover{color:#fff}
+html.glass .tab:not(.on):hover,html.glass .xtab:hover{background:var(--g-inh)}
+html.glass .optb{background:var(--g-in);border-color:var(--g-ln)}
+html.glass .optb:hover{background:var(--g-inh)}
+html.glass .optb[aria-pressed="true"]{background:var(--g-act);border-color:var(--g-hi);color:#fff}
+
+/* ---------- Botones y campos ---------- */
+html.glass .btn,html.glass .act,html.glass .obtn,html.glass .chip,html.glass .step,html.glass select,html.glass input[type=number],
+html.glass .lyr,html.glass .help details,html.glass .priv,html.glass .help kbd,html.glass .seg{
+  background:var(--g-in);border-color:var(--g-ln);color:var(--ink);box-shadow:inset 0 1px 0 var(--g-hi)}
+html.glass .btn:hover,html.glass .act:hover,html.glass .obtn:hover,html.glass .chip:hover,html.glass .lyr:hover,html.glass .help details:hover,html.glass .help details[open]{
+  background:var(--g-inh);border-color:var(--g-hi);box-shadow:0 10px 24px -12px rgba(0,0,0,.45),inset 0 1px 0 var(--g-hi)}
+html.glass .btn.pri,html.glass .obtn.pri,html.glass .chip.on,html.glass .act.on,html.glass .seg button.on,
+html.glass .pv-m.on,html.glass .pv-rb.on,html.glass .pv-tab.on,html.glass .pv-add{
+  background:var(--g-act);border-color:var(--g-hi);color:#fff;box-shadow:inset 0 1px 0 var(--g-hi),0 8px 20px -10px rgba(2,44,80,.8)}
+html.glass .btn.pri:hover,html.glass .obtn.pri:hover{background:var(--g-acth);border-color:var(--g-hi)}
+html.glass .seg{border:1px solid var(--g-ln)}
+html.glass .step button:hover{background:var(--g-inh)}
+html.glass .step:focus-within,html.glass select:focus,html.glass input[type=number]:focus{border-color:var(--g-hi)}
+html.glass select option{background:#0B2342;color:#EAF5FD}
+html.glass[data-theme="light"] select option{background:#fff;color:#022C50}
+html.glass .switch input{background:var(--g-trk)}
+html.glass .switch input:checked{background:var(--g-act)}
+html.glass input[type=range]{background:var(--g-trk)}
+html.glass .lth,html.glass .padd{background:var(--g-in)}
+html.glass .padd:hover,html.glass .pmore{background:var(--g-inh);color:var(--ink)}
+html.glass .zv:hover,html.glass .pbtn:hover,html.glass .pnav button:hover,html.glass .pbtn.on{background:var(--g-inh)}
+html.glass .pmenu button:hover{background:var(--g-inh)}
+html.glass .help .how li::before{background:var(--g-act);color:#fff}
+html.glass .help details p{color:var(--note)}
+
+/* La hoja siempre es blanca: su texto no cambia con el tema */
+html.glass .drop,html.glass .drop span{color:#022C50}
+
+/* ---------- Vista previa y medidas ---------- */
+html.glass .pv-zg,html.glass .pv-mode,html.glass .pv-tabs,html.glass .pv-sc,html.glass .pv-chip{background:var(--g-in);color:var(--ink)}
+html.glass .pv-zb,html.glass .pv-zv,html.glass .pv-m,html.glass .pv-rb,html.glass .pv-tab,html.glass .pv-chip,html.glass .pv-save{color:var(--ink)}
+html.glass .pv-save{background:var(--g-inh)}
+html.glass .pv-zb:hover:not(:disabled),html.glass .pv-zv:hover,html.glass .pv-m:hover:not(.on),html.glass .pv-rb:hover:not(.on),
+html.glass .pv-tab:hover:not(.on),html.glass .pv-chip:hover,html.glass .pv-px:hover{background:var(--g-inh)}
+html.glass .pv-x,html.glass .pv-nav,html.glass .pv-px{background:var(--g-in);color:var(--ink);border:1px solid var(--g-ln);box-shadow:inset 0 1px 0 var(--g-hi)}
+html.glass .pv-x,html.glass .pv-nav{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+html.glass .pv-x:hover,html.glass .pv-nav:hover:not(:disabled){background:var(--g-inh)}
+html.glass .pv-form input{background:var(--g-in);color:var(--ink);border-color:var(--g-ln)}
+html.glass .pv-sx{color:var(--note)}
+html.glass .cm-hint{color:var(--note)}
+
+/* ---------- Barra de abajo (estilo Canva): ancho completo, controles a la derecha ---------- */
+.bar{align-self:stretch;justify-content:flex-end;gap:6px;min-height:52px;padding:6px 10px 6px 70px;border-radius:20px}
+.bar input[type=range]{width:clamp(90px,12vw,170px);height:4px}
+.fab{left:8px;right:auto;bottom:2px}
+@media(min-width:1600px){.bar{padding-left:190px}}
+
+/* Tira de páginas: miniatura con el número dentro y botón + (como Canva) */
+#pages{align-items:center;padding:10px 12px;border-radius:20px}
+#pages > :first-child{margin-left:auto}
+#pages > :last-child{margin-right:auto}
+.thumb{height:80px;border-radius:6px}
+.thumb.on{outline:2px solid var(--ink);outline-offset:3px}
+.pcard .plabel{position:absolute;left:6px;bottom:5px;margin:0;padding:0 6px;border-radius:5px;background:rgba(255,255,255,.9);color:#022C50;font-size:12px;line-height:18px;pointer-events:none}
+.pcard .plabel svg{display:none}
+.padd{width:128px;height:80px;aspect-ratio:auto!important;border-radius:10px}
+
+/* ---------- Foto tipo carnet (ventana) ---------- */
+.cn-box{width:min(840px,100%)}
+.cn-grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;margin-top:14px;align-items:start}
+.cn-stage{display:grid;gap:8px;justify-items:center;padding:12px;border-radius:16px;background:rgba(2,44,80,.14)}
+.cn-stage canvas{display:block;max-width:100%;height:auto;background:#fff;touch-action:none;cursor:grab;box-shadow:0 0 0 2px var(--c4)}
+.cn-stage canvas:active{cursor:grabbing}
+.cn-stage small{color:var(--note);font-size:12.5px;text-align:center;max-width:300px}
+.cn-side .btn{margin-top:0}
+.cn-side .btn + .btn{margin-top:8px}
+.cn-side .lbl{margin-top:16px}
+.cn-sizes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.cn-side input[type=range]{width:100%;display:block;margin-top:8px}
+.cn-side .step{margin-top:4px}
+@media(max-width:760px){.cn-grid{grid-template-columns:1fr}}
+
+/* ---------- Respaldo: sin desenfoque disponible o con "reducir transparencia" ---------- */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html.glass .rail,html.glass .drawer,html.glass .side,html.glass .bar,html.glass #pages,html.glass .toast,html.glass .cm-box,html.glass .pv-cap{background:var(--g-solid)}
+  html.glass #prev{background:rgba(6,23,46,.92)}
+  html.glass[data-theme="light"] #prev{background:rgba(205,225,240,.95)}
+}
+@media(prefers-reduced-transparency:reduce){
+  html.glass .rail,html.glass .drawer,html.glass .side,html.glass .bar,html.glass #pages,html.glass .toast,html.glass .cm-box,html.glass .pv-cap{background:var(--g-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media print{.orbs{display:none!important}html.glass{background:#fff!important}}

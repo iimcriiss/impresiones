@@ -2,10 +2,14 @@
 @media print{
   html,body{height:auto;display:block;margin:0;padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rail,.drawer,.side,main,#toasts{display:none!important}
+  body > *:not(#printArea){display:none!important}      /* menús, cápsulas y ventanas flotantes (creados fuera de la hoja) nunca salen impresos */
   #printArea{display:block}
   .pp{position:relative;width:var(--pw);height:calc(var(--ph) - .3mm);overflow:hidden;background:#fff;break-after:page}
   .pp:last-child{break-after:auto}
-  #prev,.fab{display:none!important}
+  html.blur body::before,html.blur body::after{display:none!important}      /* el fondo con diseño es solo de pantalla */
+  html.blur,html.blur body{margin:0!important;padding:0!important;min-height:0!important;height:auto!important}      /* sin relleno: 6 px de más creaban una 2.ª página en blanco */
   .rz{display:none!important}
+  .pp .it.bn img{-webkit-filter:none!important;filter:none!important}      /* el blanco y negro es solo para ver: al imprimir va en color */
   .it{outline:0!important}
+  .pp .marks{z-index:9999}
 }

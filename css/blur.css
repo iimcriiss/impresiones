@@ -1,0 +1,762 @@
+/* Estilo esmerilado (blur): paneles translúcidos con desenfoque fuerte y grano fino, modo claro/oscuro,
+   pestaña Carnet, barra de abajo con datos/regla/medidas y ventana de foto carnet.
+   <html class="blur"> activa el estilo; data-theme="light|dark" elige el tema (ver js/theme.js). */
+
+/* ---------- Pestaña extra de la barra (Carnet) ---------- */
+.xtab{position:relative;z-index:1;height:46px;display:flex;align-items:center;gap:8px;padding:0 18px 0 14px;border:0;border-radius:23px;background:transparent;color:var(--ink);font-weight:600;font-size:14px;line-height:1;font-family:inherit;cursor:pointer;transition:background .25s,transform .45s var(--spring)}
+.xtab:hover{background:var(--c2)}
+.xtab:active{transform:scale(.96)}
+.xtab svg{transition:transform .45s var(--spring)}
+.xtab:hover svg{transform:scale(1.12) rotate(-4deg)}
+@media(max-width:700px){.xtab .lb{display:none}.xtab{padding:0 14px}}
+
+/* Imprimir y Ayuda van a la derecha de la barra, seguidos del interruptor de tema */
+.opts{margin-left:8px;align-self:center;display:flex}
+
+/* ---------- Interruptor claro/oscuro (deslizable) ---------- */
+.tsw{position:relative;flex:none;display:block;width:68px;height:36px;padding:0;border:1px solid var(--c3);border-radius:999px;background:var(--c2);cursor:pointer;transition:background .25s,border-color .25s}
+.tsw .knob{position:absolute;z-index:0;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:var(--c6);transition:transform .35s var(--spring),background .25s}
+.tsw svg{position:absolute;z-index:1;top:8px;width:18px;height:18px;color:var(--note);transition:color .25s}
+.tsw .i-moon{left:9px;color:#fff}
+.tsw .i-sun{right:9px}
+.tsw[aria-checked="true"] .knob{transform:translateX(32px)}
+.tsw[aria-checked="true"] .i-moon{color:var(--note)}
+.tsw[aria-checked="true"] .i-sun{color:#fff}
+
+/* ---------- Modo claro ---------- */
+html[data-theme="light"]{--bg:#D3E4F1}
+html[data-theme="light"] #sheet{box-shadow:0 18px 50px -18px rgba(2,44,80,.55),0 0 0 1px rgba(2,44,80,.1)}
+
+/* ---------- Fondo con manchas de color (lo que el blur desenfoca) ---------- */
+.orbs{display:none}
+html.blur{background:var(--bg)}
+html.blur body{background:transparent;background-image:none;padding-bottom:6px}
+html.blur .orbs{display:block;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.orbs i{position:absolute;border-radius:50%;filter:blur(90px)}
+.orbs i:nth-child(1){width:55vmax;height:55vmax;left:-14vmax;top:-12vmax;background:#0F4C81;opacity:.8}
+.orbs i:nth-child(2){width:40vmax;height:40vmax;right:-10vmax;bottom:-14vmax;background:#58A1D3;opacity:.22}
+.orbs i:nth-child(3){width:28vmax;height:28vmax;left:40%;top:36%;background:#7FA8C9;opacity:.16}
+html[data-theme="light"] .orbs i:nth-child(1){width:62vmin;height:62vmin;left:auto;right:6vmax;top:12vh;background:#1F7FD8;opacity:.55;filter:blur(70px)}
+html[data-theme="light"] .orbs i:nth-child(2){background:#BFE0F7;opacity:1}
+html[data-theme="light"] .orbs i:nth-child(3){background:#fff;opacity:.7}
+
+/* ---------- Variables del estilo (Neo-Tactile: cristal claro + teclas oscuras, azul de acento) ---------- */
+html.blur{
+  --c1:#EEF5FB;--c2:#DCEAF6;--c3:#BBD8EE;--c4:#1F7FD8;--c5:#0F5FB0;--c6:#0C2438;--bg:#06172E;
+  --g-bg:rgba(255,255,255,.07);--g-in:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.05));--g-inh:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.1));
+  --g-ln:rgba(255,255,255,.2);--g-edge:rgba(255,255,255,.22);--g-hi:rgba(255,255,255,.42);--g-trk:rgba(255,255,255,.22);
+  --g-act:linear-gradient(180deg,#3F97F2,#1670CC);--g-acth:linear-gradient(180deg,#5AAAFB,#1C7FE0);--g-solid:rgba(14,22,32,.96);
+  --g-btn:0 8px 18px -10px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.2);
+  --g-sh:0 22px 44px -20px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.14),inset -1px -1px 0 rgba(88,161,211,.38),0 0 34px -12px rgba(88,161,211,.4);
+  --gblur:blur(32px) saturate(1.5);--g-grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  --ink:#EEF5FB;--note:rgba(224,238,250,.88);--glow:rgba(88,161,211,.4)}
+html.blur[data-theme="light"]{
+  --bg:#D3E4F1;
+  --g-bg:rgba(255,255,255,.5);--g-in:linear-gradient(180deg,rgba(255,255,255,.97),rgba(255,255,255,.62));--g-inh:linear-gradient(180deg,#fff,rgba(255,255,255,.86));
+  --g-ln:rgba(255,255,255,.85);--g-edge:rgba(15,76,129,.2);--g-hi:#fff;--g-trk:rgba(15,76,129,.22);
+  --g-solid:rgba(244,250,254,.96);
+  --g-btn:0 8px 16px -10px rgba(18,96,170,.5),inset 0 1px 0 #fff;
+  --g-sh:0 22px 44px -22px rgba(18,96,170,.5),inset 0 1px 0 #fff,inset -1px -1px 0 rgba(31,127,216,.28),0 0 30px -14px rgba(31,127,216,.4);--g-grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .01 0 0 0 0 .17 0 0 0 0 .31 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  --ink:#0C2438;--note:#46647E;--glow:rgba(31,127,216,.3)}
+
+/* ---------- Superficies esmeriladas ---------- */
+html.blur .rail,html.blur .drawer,html.blur .side,html.blur .toast,html.blur .cm-box{
+  background-color:var(--g-bg);background-image:var(--g-grain);border:1px solid var(--g-edge);color:var(--ink);box-shadow:var(--g-sh);
+  -webkit-backdrop-filter:var(--gblur);backdrop-filter:var(--gblur)}
+html.blur .pmenu,html.blur .pv-panel{background:var(--g-solid);border:1px solid var(--g-ln);color:var(--ink);box-shadow:var(--g-sh)}
+html.blur .cm{background:rgba(6,23,46,.5)}
+html.blur[data-theme="light"] .cm{background:rgba(201,222,238,.5)}
+html.blur .sub{border-top-color:var(--g-ln)}
+
+/* ---------- Barra superior ---------- */
+html.blur .pill{background:var(--g-act);border:1px solid var(--g-ln);box-shadow:0 6px 18px -8px rgba(2,44,80,.6)}
+html.blur .tab.on,html.blur .tab.on:hover{color:#fff}
+html.blur .tab:not(.on):hover,html.blur .xtab:hover{background:var(--g-inh)}
+html.blur .tsw{background:var(--g-in);border-color:var(--g-ln)}
+html.blur .tsw .knob{background:var(--g-act);border:1px solid var(--g-ln)}
+
+/* ---------- Botones y campos ---------- */
+html.blur .btn,html.blur .act,html.blur .obtn,html.blur .chip,html.blur .step,html.blur select,html.blur input[type=number],
+html.blur .lyr,html.blur .help details,html.blur .priv,html.blur .help kbd,html.blur .seg{
+  background:var(--g-in);border-color:var(--g-ln);color:var(--ink);box-shadow:none}
+html.blur .btn:hover,html.blur .act:hover,html.blur .obtn:hover,html.blur .chip:hover,html.blur .lyr:hover,html.blur .help details:hover,html.blur .help details[open]{
+  background:var(--g-inh);border-color:var(--g-hi);box-shadow:0 10px 24px -14px rgba(0,0,0,.4)}
+html.blur .btn.pri,html.blur .obtn.pri,html.blur .chip.on,html.blur .act.on,html.blur .seg button.on,
+html.blur .pv-m.on,html.blur .pv-rb.on,html.blur .pv-tab.on,html.blur .pv-add{
+  background:var(--g-act);border-color:var(--g-hi);color:#fff;box-shadow:0 8px 20px -12px rgba(2,44,80,.8)}
+html.blur .btn.pri:hover,html.blur .obtn.pri:hover{background:var(--g-acth);border-color:var(--g-hi)}
+html.blur .seg{border:1px solid var(--g-ln)}
+html.blur .step button:hover{background:var(--g-inh)}
+html.blur .step:focus-within,html.blur select:focus,html.blur input[type=number]:focus{border-color:var(--g-hi)}
+html.blur select option{background:#0B2342;color:#EAF5FD}
+html.blur[data-theme="light"] select option{background:#fff;color:#022C50}
+html.blur .switch input{background:var(--g-trk)}
+html.blur .switch input:checked{background:var(--g-act)}
+html.blur input[type=range]{background:var(--g-trk)}
+html.blur .lth,html.blur .padd{background:var(--g-in)}
+html.blur .padd:hover,html.blur .pmore{background:var(--g-inh);color:var(--ink)}
+html.blur .zv:hover,html.blur .pbtn:hover,html.blur .pnav button:hover,html.blur .pbtn.on{background:var(--g-inh)}
+html.blur .pmenu button:hover{background:var(--g-inh)}
+html.blur .help .how li::before{background:var(--g-act);color:#fff}
+html.blur .help details p{color:var(--note)}
+
+/* La hoja siempre es blanca: su texto no cambia con el tema */
+html.blur .drop,html.blur .drop span{color:#022C50}
+
+/* ---------- Medidas ---------- */
+html.blur .pv-mode,html.blur .pv-tabs,html.blur .pv-sc,html.blur .pv-chip{background:var(--g-in);color:var(--ink)}
+html.blur .pv-m,html.blur .pv-rb,html.blur .pv-tab,html.blur .pv-chip,html.blur .pv-save{color:var(--ink)}
+html.blur .pv-save{background:var(--g-inh)}
+html.blur .pv-m:hover:not(.on),html.blur .pv-rb:hover:not(.on),
+html.blur .pv-tab:hover:not(.on),html.blur .pv-chip:hover,html.blur .pv-px:hover{background:var(--g-inh)}
+html.blur .pv-form input{background:var(--g-in);color:var(--ink);border-color:var(--g-ln)}
+html.blur .pv-sx{color:var(--note)}
+html.blur .cm-hint{color:var(--note)}
+
+/* ---------- Abajo: sin caja ni sombra, pegado al borde (estilo Canva) ---------- */
+html.blur .bar{align-self:stretch;justify-content:flex-end;gap:4px;min-height:44px;margin-top:2px;padding:4px 6px;
+  background:none;border:0;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--ink)}
+.bar input[type=range]{width:clamp(70px,9vw,150px);height:4px}
+html.blur .bar{flex-wrap:wrap;row-gap:6px}
+html.blur #pages{background:none;border:0;border-radius:0;box-shadow:none;margin-top:6px;padding:14px 18px;gap:16px;align-items:center;overflow-y:hidden;scrollbar-width:none}
+#pages > :first-child{margin-left:auto}
+#pages > :last-child{margin-right:auto}
+.thumb{height:80px;border-radius:6px}
+.thumb.on{outline:2px solid var(--ink);outline-offset:3px}
+.pcard .plabel{position:absolute;left:6px;bottom:5px;margin:0;padding:0 6px;border-radius:5px;background:rgba(255,255,255,.9);color:#022C50;font-size:12px;line-height:18px;pointer-events:none}
+.pcard .plabel svg{display:none}
+.padd{height:80px;width:auto;min-width:0;border-radius:6px}      /* «Agregar página»: del tamaño de una hoja normal (el ancho sale de la proporción del papel) */
+.padd svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* Páginas seleccionadas (varias), arrastrar para mover y barra de acciones */
+.thumb.sel,.thumb.on.sel{outline:2px solid #1F7FD8;outline-offset:3px;box-shadow:0 0 0 7px rgba(31,127,216,.22)}
+/* Arrastrar páginas: la original se pliega, las demás se abren para dejarle espacio y la que arrastras «se alza» */
+.pcard{cursor:grab;transition:width .3s var(--ease),margin .3s var(--ease),opacity .2s,transform .3s var(--ease)}.pcard:active{cursor:grabbing}
+.pcard.drag{width:0!important;margin-left:-16px;opacity:0;overflow:hidden;pointer-events:none}
+.padd{transition:background .25s,transform .3s var(--ease)}
+.lift-wrap{position:fixed;left:-9999px;top:0;padding:26px;pointer-events:none}
+.lift-wrap .pcard{position:relative;transform:rotate(-5deg) scale(1.14);border-radius:8px;box-shadow:0 26px 36px -10px rgba(2,44,80,.6)}
+.lift-wrap .pmore{display:none}
+.lift-wrap .thumb{outline:2px solid #1F7FD8;outline-offset:3px;transform:none;box-shadow:none}
+.lift-n{position:absolute;top:14px;right:14px;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:#1F7FD8;color:#fff;font:800 13px/24px Comfortaa,sans-serif;text-align:center;box-shadow:0 4px 10px rgba(2,44,80,.4)}
+/* Barra de varias páginas: mismos botones que el resto (borde + sombra) */
+.pbar{flex:none;display:flex;align-items:center;gap:6px;padding:5px 6px 5px 14px;border-radius:999px;background:#F4FAFE;border:1px solid var(--g-edge,var(--c3));box-shadow:var(--g-sh,0 12px 30px rgba(2,44,80,.35));color:var(--ink);animation:pbarIn .3s var(--ease)}
+html.blur:not([data-theme="light"]) .pbar{background:#0E1620}
+@keyframes pbarIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.pbar{animation:none}}
+.pbar b{padding-right:4px;font-size:12px;font-weight:800;white-space:nowrap}
+html.blur .pbar button{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--g-edge,var(--c3));border-radius:999px;background:var(--g-in,var(--c1));color:var(--ink);font-family:inherit;font-weight:700;font-size:12px;line-height:1;cursor:pointer;box-shadow:var(--g-btn,none);transition:background .2s,border-color .2s}
+html.blur .pbar button:hover{background:var(--g-inh,var(--c3))}
+html.blur .pbar button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+html.blur .pbar button.dng{color:#E24B4A;border-color:rgba(226,75,74,.5);background:rgba(226,75,74,.1)}
+html.blur .pbar button.dng:hover{background:rgba(226,75,74,.2);border-color:#E24B4A}
+/* Menú de la página: fondo sólido (no deja ver la hoja ni las miniaturas detrás) */
+html.blur .pmenu{background:#0E1620;background-image:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html.blur[data-theme="light"] .pmenu{background:#F4FAFE}
+.pmenu .dng{color:#E24B4A}.pmenu .dng:hover{background:rgba(226,75,74,.12)!important}
+.pmenu button:disabled{opacity:.4;cursor:default;pointer-events:none}
+
+/* ---------- Foto tipo carnet (ventana) ---------- */
+.cn-box{width:min(840px,100%)}
+.cn-grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;margin-top:14px;align-items:start}
+.cn-stage{display:grid;gap:8px;justify-items:center;padding:12px;border-radius:16px;background:rgba(2,44,80,.14)}
+.cn-stage canvas{display:block;max-width:100%;height:auto;background:#fff;touch-action:none;cursor:grab;box-shadow:0 0 0 2px var(--c4)}
+.cn-stage canvas:active{cursor:grabbing}
+.cn-stage small{color:var(--note);font-size:12.5px;text-align:center;max-width:300px}
+.cn-side .btn{margin-top:0}
+.cn-side .btn + .btn{margin-top:8px}
+.cn-side .lbl{margin-top:16px}
+.cn-sizes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.cn-side input[type=range]{width:100%;display:block;margin-top:8px}
+.cn-side .step{margin-top:4px}
+@media(max-width:760px){.cn-grid{grid-template-columns:1fr}}
+
+/* ---------- Respaldo: sin desenfoque disponible o con "reducir transparencia" ---------- */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html.blur .rail,html.blur .drawer,html.blur .side,html.blur .toast,html.blur .cm-box{background-color:var(--g-solid)}
+}
+@media(prefers-reduced-transparency:reduce){
+  html.blur .rail,html.blur .drawer,html.blur .side,html.blur .toast,html.blur .cm-box{background-color:var(--g-solid);background-image:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media print{.orbs{display:none!important}html.blur{background:#fff!important}}
+
+/* ================= Neo-Tactile ================= */
+html.blur .drawer,html.blur .side,html.blur .cm-box{border-radius:28px}
+/* Botones con borde y relieve */
+html.blur .btn,html.blur .chip,html.blur .step,html.blur select,html.blur .seg,html.blur .act,html.blur .obtn,html.blur .lyr,
+html.blur .help details,html.blur .priv,html.blur input[type=number]{border:1px solid var(--g-edge);box-shadow:var(--g-btn)}
+html.blur .btn,html.blur .chip,html.blur .step,html.blur select,html.blur .seg{border-radius:999px}
+html.blur .seg button{border-radius:999px}
+html.blur .act,html.blur .obtn,html.blur .lyr,html.blur .help details{border-radius:18px}
+html.blur .btn:hover,html.blur .act:hover,html.blur .obtn:hover,html.blur .chip:hover,html.blur .lyr:hover{box-shadow:var(--g-btn),0 0 0 3px var(--glow);border-color:var(--g-edge)}
+html.blur .btn:active,html.blur .chip:active,html.blur .act:active,html.blur .obtn:active{transform:translateY(1px);box-shadow:inset 0 2px 6px rgba(0,0,0,.25)}
+/* Activos: azul de la tecla "=" con brillo */
+html.blur .btn.pri,html.blur .obtn.pri,html.blur .chip.on,html.blur .act.on,html.blur .seg button.on,html.blur .pv-m.on,html.blur .pv-rb.on,html.blur .pv-tab.on,html.blur .pv-add{
+  border:1px solid rgba(255,255,255,.5);color:#fff;box-shadow:0 10px 24px -8px rgba(31,127,216,.8),inset 0 1px 0 rgba(255,255,255,.45)}
+html.blur .btn.pri:hover,html.blur .obtn.pri:hover{border-color:rgba(255,255,255,.7);box-shadow:0 12px 28px -8px rgba(31,127,216,.95),inset 0 1px 0 rgba(255,255,255,.5)}
+html.blur .pill{border:1px solid rgba(255,255,255,.5);box-shadow:0 10px 24px -8px rgba(31,127,216,.85),inset 0 1px 0 rgba(255,255,255,.45)}
+html.blur[data-theme="dark"] .pill,html.blur:not([data-theme]) .pill{box-shadow:0 0 0 1px rgba(88,161,211,.3),0 0 24px -4px rgba(88,161,211,.55),inset 0 1px 0 rgba(255,255,255,.4)}
+html.blur .tsw{border:1px solid var(--g-edge);box-shadow:var(--g-btn)}
+html.blur .tsw .knob{border:1px solid rgba(255,255,255,.5);box-shadow:0 4px 10px -3px rgba(31,127,216,.8),inset 0 1px 0 rgba(255,255,255,.45)}
+html.blur .switch input:checked{box-shadow:0 0 14px -2px var(--glow)}
+html.blur input[type=range]{border-radius:99px}
+html.blur input[type=range]::-webkit-slider-thumb{background:#fff;border:1px solid var(--g-edge);box-shadow:0 2px 8px rgba(0,20,50,.35)}
+html.blur input[type=range]::-moz-range-thumb{background:#fff;border:1px solid var(--g-edge);box-shadow:0 2px 8px rgba(0,20,50,.35)}
+html.blur .zv,html.blur .pbtn,html.blur .pnav button{border-radius:999px}
+html.blur .pbtn,html.blur .zv{border:1px solid transparent}
+html.blur .pbtn:hover,html.blur .zv:hover,html.blur .pbtn.on{border-color:var(--g-edge);box-shadow:var(--g-btn)}
+/* La hoja a su tamaño real, sin barra lateral de desplazamiento mientras quepa */
+html.blur #canvas{scrollbar-gutter:auto;--sb:var(--g-trk);--sbh:var(--g-hi)}
+/* Barras de abajo (zoom y páginas): cristal esmerilado; al hacer zoom la hoja pasa por debajo y se desenfoca */
+@media(min-width:1101px){
+  html.blur .bar,html.blur #pages{position:absolute;z-index:6;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);
+    background-color:var(--g-bg);background-image:var(--g-grain);border:1px solid var(--g-edge);box-shadow:var(--g-sh);
+    -webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6)}
+  html.blur .bar{bottom:10px;margin:0;padding:6px 14px;border-radius:28px;flex-wrap:wrap;justify-content:center;row-gap:6px}
+  html.blur #pages{bottom:calc(var(--barh,48px) + 20px);margin:0;border-radius:28px}
+  html.blur #pages::-webkit-scrollbar{display:none}
+  html.blur .bar{min-height:48px}
+}
+html.blur .pv-px{background:var(--g-in);color:var(--ink);border:1px solid var(--g-ln)}
+
+
+/* ---------- Regla de cristal (barras pegadas a la hoja) ---------- */
+html.blur .pv-rul,html.blur .pv-corner{background-color:var(--g-bg);background-image:var(--g-grain);border-radius:12px;box-sizing:border-box;
+  box-shadow:inset 0 0 0 1px var(--g-edge),var(--g-btn);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5)}
+html.blur .pv-corner{color:var(--c4);font-weight:800;font-size:11px}
+html.blur .mrulers{transition:none}
+/* Regla principal: fina y plana (diseño B), pegada a la hoja */
+html.blur{--rul-bg:#0B1B31}
+html.blur[data-theme="light"]{--rul-bg:#CFE1F3}
+html.blur .mrulers .pv-rul,html.blur .mrulers .pv-corner{background:var(--rul-bg);background-image:none;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html.blur .mrulers .pv-corner{border-radius:12px 0 0 0;font-size:calc(10px * var(--mu,1));letter-spacing:.04em}
+html.blur .mrulers .pv-rh{border-radius:0 12px 0 0}
+html.blur .mrulers .pv-rv{border-radius:0 0 0 12px}
+
+/* ---------- Imagen elegida: marco y tiradores de tamaño ---------- */
+html.blur .it{cursor:grab}
+html.blur .it:active{cursor:grabbing}
+html.blur .it.sel{outline:2px solid var(--c4);outline-offset:0;box-shadow:0 12px 28px -8px rgba(31,127,216,.6)}
+
+/* ---------- Botones de imprimir y descargar, modo oscuro: más contraste ---------- */
+html.blur[data-theme="dark"] .obtn .oic,html.blur:not([data-theme]) .obtn .oic{background:rgba(120,185,240,.2);box-shadow:inset 0 0 0 1px rgba(170,214,247,.38);color:#DDEEFB}
+html.blur[data-theme="dark"] .obtn .oic svg,html.blur:not([data-theme]) .obtn .oic svg{stroke:#DDEEFB}
+html.blur[data-theme="dark"] .obtn:hover .oic,html.blur:not([data-theme]) .obtn:hover .oic{background:rgba(120,185,240,.34)}
+html.blur[data-theme="dark"] .obtn .otx b,html.blur:not([data-theme]) .obtn .otx b{color:#fff}
+html.blur[data-theme="dark"] .obtn small,html.blur:not([data-theme]) .obtn small{opacity:1;color:#BFD8EE}
+html.blur[data-theme="dark"] .obtn.pri small,html.blur:not([data-theme]) .obtn.pri small{color:rgba(255,255,255,.92)}
+html.blur[data-theme="dark"] .obtn.pri .oic,html.blur:not([data-theme]) .obtn.pri .oic{background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);color:#fff}
+html.blur[data-theme="dark"] .obtn.pri .oic svg,html.blur:not([data-theme]) .obtn.pri .oic svg{stroke:#fff}
+
+/* Acciones de arriba a la derecha: Agregar, Guardar y «···» con el mismo estilo de botones del resto de la página */
+.racts{position:relative;margin-left:auto;align-self:center;display:flex;align-items:center;gap:8px}
+.racts .btn{width:auto;height:44px;margin-top:0;padding:0 18px 0 14px;white-space:nowrap}
+.racts .btn.ic{padding:0 14px}
+.racts .btn svg{width:20px;height:20px;flex:none}
+.racts .btn:focus:not(:focus-visible){outline:none}
+html.blur .racts .btn[aria-expanded="true"]{background:var(--g-inh);box-shadow:var(--g-btn),0 0 0 3px var(--glow)}
+.rmenu{position:absolute;right:0;top:calc(100% + 12px);z-index:30;min-width:260px;display:grid;gap:2px;padding:6px;border-radius:22px;background:var(--g-solid,var(--c1));border:1px solid var(--g-ln,var(--c3));box-shadow:var(--g-sh,0 12px 30px rgba(2,44,80,.35));color:var(--ink)}
+.rmenu[hidden]{display:none}
+.rmenu button{display:flex;align-items:center;gap:10px;border:1px solid transparent;background:transparent;color:inherit;font:600 14px/1 inherit;font-family:inherit;padding:11px 14px;border-radius:999px;cursor:pointer;text-align:left;white-space:nowrap;transition:background .2s,border-color .2s,box-shadow .2s}
+.rmenu button:hover,.rmenu button:focus-visible{background:var(--g-inh,var(--c2));border-color:var(--g-edge,var(--c3));box-shadow:var(--g-btn,none)}
+.rmenu button svg{width:20px;height:20px;flex:none}
+.rmenu kbd{margin-left:auto;padding-left:16px;font:600 11px/1 inherit;font-family:inherit;color:var(--note)}
+.rmenu .dng{color:#E24B4A}
+.rmenu .dng:hover,.rmenu .dng:focus-visible{background:rgba(226,75,74,.12);border-color:rgba(226,75,74,.45)}
+@media(max-width:900px){.racts .btn .lb{display:none}.racts .btn{padding:0 14px}}
+
+/* «Quitar» (imagen elegida): al final del panel y en rojo, como «Borrar hoja»; el brillo al pasar el mouse también es rojo */
+.act.dng,html.blur .act.dng{margin-top:22px;color:#E24B4A}
+html.blur .act.dng{border-color:rgba(226,75,74,.38)}
+.act.dng:hover,html.blur .act.dng:hover{border-color:#E24B4A;background:rgba(226,75,74,.1);box-shadow:var(--g-btn,none),0 0 0 3px rgba(226,75,74,.28)}
+.act.dng:focus-visible{outline-color:#E24B4A}
+
+/* Avisos: arriba, centrados sobre la hoja. Fondo sólido (sin transparencia) con borde y sombra, como el botón «Borrar hoja» */
+#toasts{position:absolute;top:14px;left:0;right:0;bottom:auto;transform:none;width:auto;z-index:50;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 16px;pointer-events:none}
+#toasts .toast,html.blur #toasts .toast{pointer-events:auto;max-width:min(460px,100%);padding:10px 18px 10px 14px;gap:10px;font-weight:700;font-size:14px;border-radius:999px;
+  -webkit-backdrop-filter:none;backdrop-filter:none;background-image:none;box-shadow:var(--g-btn,0 8px 18px -10px rgba(0,0,0,.5)),0 10px 24px -12px rgba(2,44,80,.45);animation:toastIn2 .34s cubic-bezier(.215,.61,.355,1) both}
+#toasts .toast.out{animation:toastOut .26s cubic-bezier(.55,.06,.68,.19) forwards}
+#toasts .toast svg{flex:none;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#toasts .toast button{border:0;background:transparent;color:inherit;text-decoration:underline;font:inherit;font-weight:800;cursor:pointer;padding:0 0 0 4px}
+/* Rojo (borrado / error): igual que «Borrar hoja» */
+#toasts .toast.err,html.blur #toasts .toast.err{color:#E24B4A;border:1px solid rgba(226,75,74,.6);background-color:#FDECEC}
+/* Verde (listo) */
+#toasts .toast.ok,html.blur #toasts .toast.ok{color:#1E8E52;border:1px solid rgba(34,165,94,.6);background-color:#E6F7EE}
+/* Azul (informa) */
+#toasts .toast.info,html.blur #toasts .toast.info{color:#1670CC;border:1px solid rgba(31,127,216,.55);background-color:#E8F3FD}
+/* Modo oscuro: mismo diseño, fondo oscuro sólido teñido */
+html[data-theme="dark"] #toasts .toast.err{background-color:#3A1B1D}
+html[data-theme="dark"] #toasts .toast.ok{background-color:#143626;color:#4ADE80}
+html[data-theme="dark"] #toasts .toast.info{background-color:#12283F;color:#5AAAFB}
+@keyframes toastIn2{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+@keyframes toastOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-12px)}}
+@media(prefers-reduced-motion:reduce){#toasts .toast,#toasts .toast.out{animation:none}}
+
+/* «Quitar foto» del Documento (y cualquier .btn.dng): rojo como «Borrar hoja» */
+.btn.dng,html.blur .btn.dng{color:#E24B4A}
+html.blur .btn.dng{border-color:rgba(226,75,74,.38)}
+.btn.dng:hover,html.blur .btn.dng:hover{border-color:#E24B4A;background:rgba(226,75,74,.1);box-shadow:var(--g-btn,none),0 0 0 3px rgba(226,75,74,.28)}
+
+/* =====================================================================================================
+   ESTILO FINO Y PLANO (va al final: manda sobre todo lo anterior)
+   Cápsulas delgadas con borde fino y sombra suave, sin relieve 3D, sin brillos ni manchas de color,
+   sin animaciones en los botones y sin que el borde se encienda o crezca al pasar el mouse.
+   ===================================================================================================== */
+/* Fondo liso: se quitan las manchas de color (eran los «faroles») */
+.orbs,html.blur .orbs{display:none!important}
+
+/* Colores planos: sin degradados, sin luces internas, sin resplandor */
+html.blur{
+  --g-in:rgba(255,255,255,.05);--g-inh:rgba(255,255,255,.1);
+  --g-edge:rgba(255,255,255,.24);--g-hi:rgba(255,255,255,.34);
+  --g-act:#1F7FD8;--g-acth:#2C8AE4;
+  --g-btn:0 3px 8px -5px rgba(0,0,0,.6);
+  --g-sh:0 16px 32px -18px rgba(0,0,0,.65);
+  --glow:transparent}
+html.blur[data-theme="light"]{
+  --g-in:rgba(255,255,255,.8);--g-inh:#fff;
+  --g-edge:rgba(15,76,129,.22);--g-hi:rgba(15,76,129,.34);
+  --g-act:#1F7FD8;--g-acth:#1670CC;
+  --g-btn:0 3px 8px -5px rgba(18,96,170,.45);
+  --g-sh:0 16px 32px -20px rgba(18,96,170,.5);
+  --glow:transparent}
+
+/* Botones, campos y segmentos: borde fino + sombra suave */
+html.blur .btn,html.blur .act,html.blur .obtn,html.blur .chip,html.blur .step,html.blur select,html.blur input[type=number],
+html.blur .lyr,html.blur .help details,html.blur .priv,html.blur .seg,html.blur .tsw,html.blur .help kbd{
+  background:var(--g-in);border:1px solid var(--g-edge);box-shadow:var(--g-btn);transition:none!important;transform:none!important}
+/* Pasar el mouse: solo cambia el fondo (como en el menú «···»). El borde no se enciende ni crece */
+html.blur .btn:hover,html.blur .act:hover,html.blur .obtn:hover,html.blur .chip:hover,html.blur .lyr:hover,
+html.blur .help details:hover,html.blur .help details[open],html.blur .step:hover{
+  background:var(--g-inh);border-color:var(--g-edge);box-shadow:var(--g-btn);transform:none!important}
+html.blur .btn:active,html.blur .act:active,html.blur .obtn:active,html.blur .chip:active{
+  background:var(--g-inh);border-color:var(--g-edge);box-shadow:var(--g-btn);transform:none!important}
+html.blur .btn:disabled,html.blur .act:disabled{opacity:.42;box-shadow:none!important}
+
+/* Cápsulas más delgadas */
+html.blur .btn,html.blur .act{padding:7px 14px;border-radius:999px}
+html.blur .obtn{padding:9px 14px;border-radius:999px}
+html.blur .lay .act,html.blur .pgrid .act{padding:7px 10px}
+html.blur .chip{padding:6px 0}
+html.blur .seg{padding:2px}
+html.blur .seg button{padding:5px 8px}
+html.blur .step button{height:30px}
+html.blur .lyr{border-radius:16px}
+html.blur .help details{border-radius:16px}
+
+/* Activos / principales: azul liso, sin degradado ni brillo */
+html.blur .btn.pri,html.blur .obtn.pri,html.blur .chip.on,html.blur .act.on,html.blur .seg button.on,
+html.blur .pv-m.on,html.blur .pv-rb.on,html.blur .pv-tab.on,html.blur .pv-add{
+  background:var(--g-act);border:1px solid var(--g-act);color:#fff;box-shadow:var(--g-btn)}
+html.blur .btn.pri:hover,html.blur .obtn.pri:hover,html.blur .chip.on:hover,html.blur .act.on:hover{
+  background:var(--g-acth);border-color:var(--g-acth);box-shadow:var(--g-btn)}
+html.blur .seg button.on{box-shadow:none}
+html.blur .act.on svg,html.blur .btn.pri svg{stroke:#fff}
+
+/* Rojo (quitar / borrar): mismo diseño, sin anillo al pasar el mouse */
+html.blur .act.dng:hover,html.blur .btn.dng:hover{border-color:#E24B4A;background:rgba(226,75,74,.1);box-shadow:var(--g-btn)}
+html.blur .racts .btn[aria-expanded="true"]{background:var(--g-inh);box-shadow:var(--g-btn)}
+
+/* Barra de arriba: la pastilla de la pestaña activa, lisa */
+html.blur .pill,html.blur[data-theme="dark"] .pill,html.blur:not([data-theme]) .pill{background:var(--g-act);border:1px solid var(--g-act);box-shadow:none!important}
+html.blur .tab,html.blur .xtab,html.blur .tab svg,html.blur .xtab svg{transition:none!important}
+html.blur .xtab:active,html.blur .tab:active{transform:none}
+html.blur .xtab:hover svg,html.blur .tab:hover svg{transform:none}
+html.blur .tab:not(.on):hover,html.blur .xtab:hover{background:var(--g-inh);box-shadow:inset 0 0 0 1px var(--g-edge)}
+
+/* Interruptores y deslizadores: lisos */
+html.blur .tsw .knob{background:var(--g-act);border:1px solid var(--g-act);box-shadow:none}
+html.blur .switch input:checked{background:var(--g-act);box-shadow:none}
+html.blur input[type=range]::-webkit-slider-thumb:hover{transform:none;box-shadow:0 2px 8px rgba(0,20,50,.35)}
+html.blur input[type=range]::-webkit-slider-thumb,html.blur input[type=range]::-moz-range-thumb{box-shadow:0 1px 4px rgba(0,20,50,.3)}
+
+/* Campos: al enfocar solo cambia el borde, sin halo */
+html.blur .step:focus-within,html.blur select:focus,html.blur input[type=number]:focus{border-color:var(--g-hi);box-shadow:var(--g-btn);outline:0}
+/* Foco con teclado: línea fina (sigue siendo visible para quien navega con Tab) */
+html.blur :focus-visible,html.blur .rail :focus-visible{outline:1.5px solid var(--c4);outline-offset:2px}
+
+/* Resplandores sueltos que quedaban */
+html.blur .brand,html.blur .brand:hover{transform:none;box-shadow:none;transition:none}
+html.blur .lyr.sel{box-shadow:var(--g-btn)}
+html.blur .thumb.sel,html.blur .thumb.on.sel{box-shadow:none}
+html.blur #sheet.over{box-shadow:var(--g-sh)}
+html.blur .cm-rail .cm-badge.on{box-shadow:0 3px 8px -4px rgba(2,44,80,.5)}
+html.blur .obtn:hover .oic{transform:none}
+html.blur .pcard .thumb,html.blur .padd{transition:none}
+/* Imagen elegida: solo el borde azul fino (sin resplandor) y hoja con sombra neutra */
+html.blur .it.sel{outline:2px solid var(--c4);outline-offset:0;box-shadow:none}
+html.blur #sheet,html[data-theme="light"] #sheet{box-shadow:0 12px 30px -16px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.08)}
+/* Sin animaciones en botones normales y campos numéricos: la lista está al final (sección 5 de v2). Deslizan: .seg, interruptores y pomo del tema */
+
+/* =====================================================================================================
+   v2 · MODO OSCURO MONOCROMO · SELECTORES QUE SE DESLIZAN · BOTÓN PRINCIPAL · BORDE DE COLOR AL PASAR EL MOUSE
+   (va después de todo lo anterior; --glow sigue en transparent)
+   ===================================================================================================== */
+
+/* ---------- Color del borde al pasar el mouse: se cambia aquí, en un solo lugar ---------- */
+html.blur{--hv:#1F7FD8;--hv-bg:rgba(31,127,216,.09);--hv-d:#E24B4A;--hv-d-bg:rgba(226,75,74,.1)}
+html.blur:not([data-theme="light"]){--hv:rgba(255,255,255,.45);--hv-bg:rgba(255,255,255,.08)}
+
+/* ---------- Colores de los selectores (.seg) por modo ---------- */
+html.blur[data-theme="light"]{--seg-bg:rgba(15,76,129,.06);--seg-bd:rgba(15,76,129,.22);--seg-pill:#fff;--seg-pill-sh:0 2px 6px -2px rgba(18,96,170,.38),inset 0 0 0 1px rgba(15,76,129,.1);--seg-on:#0C2438;--seg-off:#46647E;--seg-bar:#1F7FD8}
+html.blur:not([data-theme="light"]){--seg-bg:#141414;--seg-bd:#2E2E2E;--seg-pill:#232323;--seg-pill-sh:0 4px 10px -4px rgba(0,0,0,.9),inset 0 0 0 1px #2F2F2F;--seg-on:#FFFFFF;--seg-off:#8C8C8C;--seg-bar:#F2F2F2}
+
+/* =========================================================================
+   1) MODO OSCURO: solo negro, grises y blanco
+   ========================================================================= */
+html.blur:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#000;--midnight:#000;
+  --c1:#111;--c2:#1A1A1A;--c3:#2E2E2E;--c4:#B8B8B8;--c5:#9A9A9A;--c6:#F5F5F5;
+  --ink:#F5F5F5;--note:#8C8C8C;
+  --g-bg:#0B0B0B;--g-solid:#101010;--g-grain:none;
+  --g-in:#161616;--g-inh:#1F1F1F;--g-ln:#2A2A2A;--g-edge:#2E2E2E;--g-hi:#4A4A4A;--g-trk:#3A3A3A;
+  --g-act:#F5F5F5;--g-acth:#E6E6E6;
+  --g-btn:0 3px 8px -5px rgba(0,0,0,.9);--g-sh:0 16px 32px -18px #000;
+  --glow:transparent;--rul-bg:#0B0B0B;--sb:#3A3A3A;--sbh:#5A5A5A}
+/* Superficies: sólidas, sin desenfoque ni grano */
+html.blur:not([data-theme="light"]) .rail,html.blur:not([data-theme="light"]) .drawer,html.blur:not([data-theme="light"]) .side,html.blur:not([data-theme="light"]) .toast,html.blur:not([data-theme="light"]) .cm-box{background:#0B0B0B;background-image:none;border:1px solid #2A2A2A;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html.blur:not([data-theme="light"]) .pmenu,html.blur:not([data-theme="light"]) .pv-panel,html.blur:not([data-theme="light"]) .rmenu{background:#101010;background-image:none;border:1px solid #2A2A2A;box-shadow:0 16px 32px -18px #000}
+html.blur:not([data-theme="light"]) .pbar{background:#101010;border-color:#2A2A2A;box-shadow:none}
+html.blur:not([data-theme="light"]) .cm{background:rgba(0,0,0,.72)}
+html.blur:not([data-theme="light"]) .sub,html.blur:not([data-theme="light"]) .fmts + .who{border-color:#2A2A2A}
+html.blur:not([data-theme="light"]) ::selection{background:#3A3A3A;color:#fff}
+html.blur:not([data-theme="light"]) #canvas,html.blur:not([data-theme="light"]) #pages,html.blur:not([data-theme="light"]) .drawer,html.blur:not([data-theme="light"]) .side{--sb:#3A3A3A;--sbh:#5A5A5A}
+html.blur:not([data-theme="light"]) .brand{background:#000;box-shadow:none}
+/* Foco con teclado: línea fina blanca */
+html.blur:not([data-theme="light"]) :focus-visible,html.blur:not([data-theme="light"]) .rail :focus-visible,html.blur:not([data-theme="light"]) .cm-rail:focus-visible,html.blur:not([data-theme="light"]) .cm-nudge:focus-visible{outline:1.5px solid #fff;outline-offset:2px}
+html.blur:not([data-theme="light"]) .act.dng:focus-visible{outline-color:#fff}
+/* Barra de arriba */
+html.blur:not([data-theme="light"]) .pill,html.blur:not([data-theme="light"]) .pill{background:#232323;border:1px solid #2E2E2E;box-shadow:0 4px 10px -4px rgba(0,0,0,.85)!important}
+html.blur:not([data-theme="light"]) .tab.on,html.blur:not([data-theme="light"]) .tab.on:hover{color:#fff}
+html.blur:not([data-theme="light"]) .tsw{background:#161616;border-color:#2E2E2E}
+html.blur:not([data-theme="light"]) .tsw .knob{background:#F5F5F5;border-color:#F5F5F5}
+html.blur:not([data-theme="light"]) .tsw .i-moon{color:#0B0B0B}html.blur:not([data-theme="light"]) .tsw .i-sun{color:#8C8C8C}
+/* Botones y campos */
+html.blur:not([data-theme="light"]) select option{background:#161616;color:#F5F5F5}
+html.blur:not([data-theme="light"]) .switch input{background:#3A3A3A}
+html.blur:not([data-theme="light"]) .switch input::after{background:#F5F5F5;box-shadow:none}
+html.blur:not([data-theme="light"]) .switch input:checked{background:#F5F5F5;box-shadow:none}
+html.blur:not([data-theme="light"]) .switch input:checked::after{background:#0B0B0B}
+html.blur:not([data-theme="light"]) input[type=range]{background:#3A3A3A}
+html.blur:not([data-theme="light"]) input[type=range]::-webkit-slider-thumb,html.blur:not([data-theme="light"]) input[type=range]::-moz-range-thumb{background:#fff;border:1px solid #2E2E2E}
+html.blur:not([data-theme="light"]) .help .how li::before{background:#F5F5F5;color:#0B0B0B;box-shadow:none}
+html.blur:not([data-theme="light"]) .help details p{color:#8C8C8C}
+html.blur:not([data-theme="light"]) .pv-card{background:#161616;color:#F5F5F5;border-color:transparent}
+html.blur:not([data-theme="light"]) .pv-card small{color:#8C8C8C}
+html.blur:not([data-theme="light"]) .cm-nudge{background:#1F1F1F;color:#F5F5F5;box-shadow:none;border:1px solid #2E2E2E}
+html.blur:not([data-theme="light"]) .cm-hs i{background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.3)}
+html.blur:not([data-theme="light"]) .cm-rect{border-color:#fff;box-shadow:0 0 0 9999px rgba(0,0,0,.66)}
+html.blur:not([data-theme="light"]) .cm-rail{background:#161616;box-shadow:inset 0 2px 6px rgba(0,0,0,.6),0 1px 0 #2A2A2A}
+html.blur:not([data-theme="light"]) .cm-ticks{border-right-color:rgba(255,255,255,.3);background:linear-gradient(90deg,rgba(255,255,255,.3) 1px,transparent 1px) 0 0/calc(100%/18) 100%}
+html.blur:not([data-theme="light"]) .cm-mid{background:#F5F5F5}
+html.blur:not([data-theme="light"]) .cm-badge{background:#F5F5F5;color:#0B0B0B;box-shadow:none}
+html.blur:not([data-theme="light"]) .cm-badge.on,html.blur:not([data-theme="light"]) .cm-rail .cm-badge.on{background:#fff;box-shadow:none}
+html.blur:not([data-theme="light"]) .cn-stage,html.blur:not([data-theme="light"]) .dc-slot{background:rgba(255,255,255,.04)!important}
+html.blur:not([data-theme="light"]) .mr-pill,html.blur:not([data-theme="light"]) .gbox .gtag,html.blur:not([data-theme="light"]) .ptag{background:#F5F5F5;color:#0B0B0B;box-shadow:none}
+html.blur:not([data-theme="light"]) .rz::before{filter:drop-shadow(0 0 1.5px rgba(0,0,0,.8)) drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+html.blur:not([data-theme="light"]) .rz:hover::before{border-color:#D8D8D8}
+/* Dentro de la hoja (siempre blanca): contornos grises o blancos con filo oscuro para que se vean */
+html.blur:not([data-theme="light"]) .it.sel{outline:2px solid #F5F5F5;outline-offset:0;box-shadow:0 0 0 3px #000,inset 0 0 0 1px #000}
+html.blur:not([data-theme="light"]) .it:hover{outline-color:#B8B8B8}
+html.blur:not([data-theme="light"]) .guide{border-color:#8C8C8C}
+html.blur:not([data-theme="light"]) .snap-line{background:#555;box-shadow:none}
+html.blur:not([data-theme="light"]) .gbox{border-color:#555}
+html.blur:not([data-theme="light"]) .marq{border-color:#777;background:rgba(120,120,120,.16);box-shadow:none}
+html.blur:not([data-theme="light"]) #sheet.over{outline:2px solid #fff;box-shadow:0 12px 30px -16px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.08)}
+html.blur:not([data-theme="light"]) #sheet.over::after{background:#F5F5F5;color:#0B0B0B;box-shadow:none}
+html.blur:not([data-theme="light"]) .drop,html.blur:not([data-theme="light"]) .drop span,html.blur:not([data-theme="light"]) .drop strong{color:#111}
+html.blur:not([data-theme="light"]) .drop{border-color:#8C8C8C;box-shadow:none}
+html.blur:not([data-theme="light"]) .drop:hover,html.blur:not([data-theme="light"]) #sheet.over .drop{background:#F2F2F2;border-color:#555;box-shadow:none}
+html.blur:not([data-theme="light"]) .pcard .plabel{color:#111}
+html.blur:not([data-theme="light"]) .pv-ref{background:rgba(0,0,0,.08);outline-color:#555}
+html.blur:not([data-theme="light"]) .pv-ref.on{background:rgba(0,0,0,.16);outline-color:#222}
+html.blur:not([data-theme="light"]) .pv-rl,html.blur:not([data-theme="light"]) .pv-rx{background:#111;color:#F5F5F5}
+html.blur:not([data-theme="light"]) .pv-mb{background:rgba(0,0,0,.06);outline-color:#555}
+/* Páginas: la elegida y las seleccionadas en blanco / gris claro */
+html.blur:not([data-theme="light"]) .thumb.on{outline-color:#F5F5F5}
+html.blur:not([data-theme="light"]) .thumb.sel,html.blur:not([data-theme="light"]) .thumb.on.sel{outline:2px solid #F5F5F5;outline-offset:3px;box-shadow:0 0 0 7px #2E2E2E}
+html.blur:not([data-theme="light"]) .lift-wrap .thumb{outline:2px solid #F5F5F5}
+html.blur:not([data-theme="light"]) .lift-wrap .pcard{box-shadow:0 26px 36px -10px rgba(0,0,0,.8)}
+html.blur:not([data-theme="light"]) .lift-n{background:#F5F5F5;color:#0B0B0B;box-shadow:none}
+html.blur:not([data-theme="light"]) .lyr.sel{border-color:#F5F5F5}
+html.blur:not([data-theme="light"]) .cm-rail .cm-badge.on{box-shadow:none}
+/* Imprimir y descargar */
+html.blur:not([data-theme="light"]) .obtn .oic{background:#1F1F1F;box-shadow:inset 0 0 0 1px #2E2E2E;color:#F5F5F5}
+html.blur:not([data-theme="light"]) .obtn .oic svg{stroke:#F5F5F5}
+html.blur:not([data-theme="light"]) .obtn:hover .oic{background:#262626}
+html.blur:not([data-theme="light"]) .obtn .otx b{color:#F5F5F5}
+html.blur:not([data-theme="light"]) .obtn small{opacity:1;color:#8C8C8C}
+/* Avisos: gris, borde gris, texto blanco; el icono los distingue (triángulo, check, i) */
+html.blur:not([data-theme="light"]) #toasts .toast,html.blur:not([data-theme="light"]) #toasts .toast.err,html.blur:not([data-theme="light"]) #toasts .toast.ok,html.blur:not([data-theme="light"]) #toasts .toast.info{background-color:#161616;color:#F5F5F5;border:1px solid #3A3A3A;box-shadow:0 10px 24px -12px #000}
+/* Regla */
+html.blur:not([data-theme="light"]) .mrulers .pv-rul,html.blur:not([data-theme="light"]) .mrulers .pv-corner{background:#0B0B0B}
+html.blur:not([data-theme="light"]) .pv-corner{color:#B8B8B8}
+/* Rojo solo para eliminar o borrar (se mantiene en ambos modos) */
+
+/* =========================================================================
+   2) SELECTORES QUE SE DESLIZAN (.seg)
+   El script js/seg.js publica --x y --w (posición y ancho del botón .on)
+   ========================================================================= */
+html.blur .seg{position:relative;display:flex;gap:0;padding:3px!important;border:1px solid var(--seg-bd);border-radius:999px;background:var(--seg-bg);box-shadow:none;isolation:isolate}
+html.blur .seg::before,html.blur .seg::after{content:"";position:absolute;left:0;pointer-events:none;opacity:0}
+html.blur .seg::before{z-index:0;top:3px;bottom:3px;width:var(--w,0px);transform:translateX(var(--x,0px));border-radius:999px;background:var(--seg-pill);box-shadow:var(--seg-pill-sh);
+  transition:transform .25s ease-out,width .25s ease-out,opacity .15s}
+html.blur .seg::after{z-index:1;bottom:9px;height:4px;width:calc(var(--w,0px) * .55);transform:translateX(calc(var(--x,0px) + var(--w,0px) * .225));border-radius:999px;background:var(--seg-bar);
+  transition:transform .25s ease-out,width .25s ease-out,opacity .15s}
+html.blur .seg.seg-ok::before,html.blur .seg.seg-ok::after{opacity:1}
+html.blur .seg.seg-still::before,html.blur .seg.seg-still::after{transition:none!important}
+html.blur .seg button,html.blur .seg button.on{position:relative;z-index:2;flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;
+  padding:8px 9px 15px!important;border:0!important;border-radius:999px;background:transparent!important;box-shadow:none!important;color:var(--seg-off);
+  font-weight:600;font-size:13.5px!important;line-height:17px!important;white-space:nowrap;transition:color .25s ease-out}
+html.blur .seg button.on{color:var(--seg-on)}
+html.blur .seg button svg{width:18px;height:18px;flex:none;stroke:currentColor;stroke-width:1.9}
+html.blur .seg button:not(.on):hover{color:var(--seg-on);background-image:linear-gradient(var(--hv-bg),var(--hv-bg))!important;box-shadow:inset 0 0 0 1px var(--hv)!important}
+/* Sin JS: la opción elegida se ve igual (se reemplaza por la pastilla en cuanto el script la coloca) */
+html.blur .seg:not(.seg-ok) button.on{background:var(--seg-pill)!important}
+@media(prefers-reduced-motion:reduce){html.blur .seg::before,html.blur .seg::after,html.blur .seg button{transition:none!important}}
+
+/* =========================================================================
+   3) ANIMACIONES: se devuelven solo las que deslizan; los botones no se animan
+   ========================================================================= */
+html.blur .tsw .knob{transition:transform .3s ease-out,background .2s ease-out!important}
+html.blur .switch input,html.blur .switch input::after{transition:background .25s ease-out,transform .25s ease-out!important}
+@media(prefers-reduced-motion:reduce){html.blur .tsw .knob,html.blur .switch input,html.blur .switch input::after{transition:none!important}}
+
+/* =========================================================================
+   4) BOTÓN PRINCIPAL (imagen A) — modo claro: cápsula azul con degradado vertical y sombra solo hacia abajo
+   ========================================================================= */
+html.blur[data-theme="light"] .btn.pri,html.blur[data-theme="light"] .obtn.pri,html.blur[data-theme="light"] .chip.on,html.blur[data-theme="light"] .act.on,html.blur[data-theme="light"] .pv-add,html.blur[data-theme="light"] .pv-m.on,html.blur[data-theme="light"] .pv-rb.on,html.blur[data-theme="light"] .pv-tab.on{background:linear-gradient(180deg,#1B86FF,#0050E4) border-box;border:1px solid transparent;border-bottom-color:#0046CC;border-radius:999px;color:#fff;
+  box-shadow:0 6px 12px -8px rgba(31,127,216,.55);transform:none}
+html.blur[data-theme="light"] .btn.pri:hover,html.blur[data-theme="light"] .obtn.pri:hover,html.blur[data-theme="light"] .chip.on:hover,html.blur[data-theme="light"] .act.on:hover,html.blur[data-theme="light"] .pv-add:hover,html.blur[data-theme="light"] .pv-m.on:hover,html.blur[data-theme="light"] .pv-rb.on:hover,html.blur[data-theme="light"] .pv-tab.on:hover{background:linear-gradient(180deg,#3A98FF,#0A5CF0) border-box;border-color:transparent;border-bottom-color:#0046CC;box-shadow:0 6px 12px -8px rgba(31,127,216,.55);transform:none}
+html.blur[data-theme="light"] .btn.pri:active,html.blur[data-theme="light"] .obtn.pri:active,html.blur[data-theme="light"] .chip.on:active,html.blur[data-theme="light"] .act.on:active,html.blur[data-theme="light"] .pv-add:active,html.blur[data-theme="light"] .pv-m.on:active,html.blur[data-theme="light"] .pv-rb.on:active,html.blur[data-theme="light"] .pv-tab.on:active{background:linear-gradient(180deg,#3A98FF,#0A5CF0) border-box;border-color:transparent;border-bottom-color:#0046CC;box-shadow:0 6px 12px -8px rgba(31,127,216,.55);transform:none}
+html.blur[data-theme="light"] .act.on svg,html.blur[data-theme="light"] .btn.pri svg,html.blur[data-theme="light"] .chip.on svg{stroke:#fff}
+/* Modo oscuro: el principal es blanco con texto negro y sombra suave hacia abajo */
+html.blur:not([data-theme="light"]) .btn.pri,html.blur:not([data-theme="light"]) .obtn.pri,html.blur:not([data-theme="light"]) .chip.on,html.blur:not([data-theme="light"]) .act.on,html.blur:not([data-theme="light"]) .pv-add,html.blur:not([data-theme="light"]) .pv-m.on,html.blur:not([data-theme="light"]) .pv-rb.on,html.blur:not([data-theme="light"]) .pv-tab.on{background:#F5F5F5;border:1px solid #F5F5F5;color:#0B0B0B;box-shadow:0 6px 12px -8px rgba(255,255,255,.32);transform:none}
+html.blur:not([data-theme="light"]) .btn.pri:hover,html.blur:not([data-theme="light"]) .obtn.pri:hover,html.blur:not([data-theme="light"]) .chip.on:hover,html.blur:not([data-theme="light"]) .act.on:hover,html.blur:not([data-theme="light"]) .pv-add:hover,html.blur:not([data-theme="light"]) .pv-m.on:hover,html.blur:not([data-theme="light"]) .pv-rb.on:hover,html.blur:not([data-theme="light"]) .pv-tab.on:hover{background:#E6E6E6;border-color:#E6E6E6;color:#0B0B0B;box-shadow:0 6px 12px -8px rgba(255,255,255,.32);transform:none}
+html.blur:not([data-theme="light"]) .btn.pri:active,html.blur:not([data-theme="light"]) .obtn.pri:active,html.blur:not([data-theme="light"]) .chip.on:active,html.blur:not([data-theme="light"]) .act.on:active,html.blur:not([data-theme="light"]) .pv-add:active,html.blur:not([data-theme="light"]) .pv-m.on:active,html.blur:not([data-theme="light"]) .pv-rb.on:active,html.blur:not([data-theme="light"]) .pv-tab.on:active{background:#E6E6E6;border-color:#E6E6E6;color:#0B0B0B;box-shadow:0 6px 12px -8px rgba(255,255,255,.32);transform:none}
+html.blur:not([data-theme="light"]) .act.on svg,html.blur:not([data-theme="light"]) .btn.pri svg,html.blur:not([data-theme="light"]) .chip.on svg{stroke:#0B0B0B}
+html.blur:not([data-theme="light"]) .obtn.pri .oic{background:rgba(0,0,0,.08);box-shadow:none;color:#0B0B0B}
+html.blur:not([data-theme="light"]) .obtn.pri .oic svg{stroke:#0B0B0B}
+html.blur:not([data-theme="light"]) .obtn.pri .otx b,html.blur:not([data-theme="light"]) .obtn.pri small{color:#0B0B0B}
+html.blur[data-theme="light"] .obtn.pri .oic{background:rgba(255,255,255,.22)}
+
+/* =========================================================================
+   5) BORDE DE COLOR AL PASAR EL MOUSE (todos los botones)
+   Solo cambia el color del borde y un fondo teñido: sin anillo, sin sombra de color, sin mover ni cambiar el tamaño.
+   El color sale de --hv / --hv-bg (arriba). Destructivos: rojo en ambos modos.
+   ========================================================================= */
+/* A) con borde de 1 px y fondo propio */
+html.blur .btn:not(.pri):not(.dng):not(:disabled):hover,html.blur .act:not(.on):not(.dng):not(:disabled):hover,html.blur .obtn:not(.pri):hover,
+html.blur .chip:not(.on):hover,html.blur .pbar button:not(.dng):hover,html.blur .tsw:hover,html.blur .lyr:hover{
+  background:var(--g-in) linear-gradient(var(--hv-bg),var(--hv-bg));border-color:var(--hv);box-shadow:var(--g-btn);transform:none}
+html.blur .racts .btn[aria-expanded="true"]{background:var(--g-in) linear-gradient(var(--hv-bg),var(--hv-bg));border-color:var(--hv);box-shadow:var(--g-btn)}
+/* B) con borde transparente de 1 px y fondo transparente */
+html.blur .rmenu button:not(.dng):hover,html.blur .rmenu button:not(.dng):focus-visible,html.blur .pbtn:hover,html.blur .zv:hover{
+  background:transparent linear-gradient(var(--hv-bg),var(--hv-bg));border-color:var(--hv);box-shadow:none;transform:none}
+/* C) sin borde: el contorno de 1 px se dibuja hacia adentro (así no cambia el tamaño) */
+html.blur .tab:not(.on):hover,html.blur .xtab:hover,html.blur .pnav button:not(:disabled):hover,html.blur .pmenu button:not(.dng):hover,html.blur .step button:hover,
+html.blur .padd:hover,html.blur .pmore:hover,html.blur .pv-px:hover,html.blur .pv-chip:hover,html.blur .pv-save:hover,html.blur .pv-sx:hover,
+html.blur .pv-m:not(.on):hover,html.blur .pv-rb:not(.on):hover,html.blur .pv-tab:not(.on):hover,html.blur .pv-card:hover,html.blur .cm-nudge:hover{
+  background-image:linear-gradient(var(--hv-bg),var(--hv-bg));box-shadow:inset 0 0 0 1px var(--hv);transform:none}
+html.blur .tab:not(.on):hover,html.blur .xtab:hover,html.blur .pnav button:not(:disabled):hover,html.blur .pmenu button:not(.dng):hover,html.blur .step button:hover,
+html.blur .pv-m:not(.on):hover,html.blur .pv-rb:not(.on):hover,html.blur .pv-tab:not(.on):hover,html.blur .pv-sx:hover{background-color:transparent}
+html.blur .pv-card:hover{border-color:transparent}
+/* Destructivos: rojo en claro y en oscuro */
+html.blur .act.dng:hover,html.blur .btn.dng:hover,html.blur .pbar button.dng:hover,html.blur .rmenu .dng:hover,html.blur .rmenu .dng:focus-visible,html.blur .pmenu .dng:hover{
+  background:var(--g-in) linear-gradient(var(--hv-d-bg),var(--hv-d-bg))!important;border-color:var(--hv-d);box-shadow:var(--g-btn)}
+html.blur .rmenu .dng:hover,html.blur .rmenu .dng:focus-visible{background:transparent linear-gradient(var(--hv-d-bg),var(--hv-d-bg))!important;box-shadow:none}
+html.blur .pmenu .dng:hover{background:transparent linear-gradient(var(--hv-d-bg),var(--hv-d-bg))!important;box-shadow:inset 0 0 0 1px var(--hv-d)}
+
+/* Botones normales y campos numéricos: sin transiciones (el cambio al pasar el mouse es instantáneo) */
+html.blur .btn,html.blur .act,html.blur .obtn,html.blur .chip,html.blur .step,html.blur .step button,html.blur .lyr,html.blur .pbtn,html.blur .zv,
+html.blur .pnav button,html.blur .pbar button,html.blur .rmenu button,html.blur .pmenu button,html.blur .pv-m,html.blur .pv-rb,html.blur .pv-tab,
+html.blur .pv-chip,html.blur .pv-save,html.blur .pv-add,html.blur .pv-px,html.blur .pv-card,html.blur .cm-nudge,html.blur .xtab,html.blur .tab,
+html.blur select,html.blur input[type=number]{transition:none!important}
+
+/* =====================================================================================================
+   v3 · FONDO CON DISEÑO (oscuro y claro) · MODO CLARO MONOCROMO · ESCUADRAS DE SELECCIÓN · BOTONES DE DOCUMENTO
+   (va después de todo lo anterior; --glow sigue en transparent)
+   ===================================================================================================== */
+
+/* ---------- 1) Sombras neutras en ambos modos (antes llevaban un azul muy oscuro) ---------- */
+html.blur{
+  --shadow-sm:0 1px 2px rgba(0,0,0,.18),0 4px 10px -2px rgba(0,0,0,.22);
+  --shadow-md:0 2px 4px rgba(0,0,0,.16),0 14px 28px -8px rgba(0,0,0,.4);
+  --shadow-lg:0 4px 8px rgba(0,0,0,.2),0 30px 60px -16px rgba(0,0,0,.65)}
+html.blur input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.35)}
+html.blur input[type=range]::-moz-range-thumb{box-shadow:0 1px 4px rgba(0,0,0,.35)}
+html.blur input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 2px 8px rgba(0,0,0,.35)}
+
+/* ---------- 2) FONDO CON DISEÑO ----------
+   Dos capas fijas detrás de todo, sin eventos y sin animación:
+   ::before = haces de luz en diagonal + manchas suaves tipo humo (gradientes en capas)
+   ::after  = grano fino (ruido SVG feTurbulence en data:, gris puro)
+   Todo se regula con estas variables (solo grises: cero color). */
+html.blur{
+  --bgd-beam1:rgba(255,255,255,.085);--bgd-beam2:rgba(255,255,255,.062);--bgd-beam3:rgba(255,255,255,.042);
+  --bgd-glow:rgba(255,255,255,.075);--bgd-smoke1:rgba(255,255,255,.050);--bgd-smoke2:rgba(255,255,255,.036);--bgd-dark:rgba(0,0,0,.6);
+  --bgd-grain-op:.34;
+  --bgd-grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 -.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E")}
+html.blur[data-theme="light"]{
+  --bgd-beam1:rgba(255,255,255,1);--bgd-beam2:rgba(255,255,255,.85);--bgd-beam3:rgba(255,255,255,.65);
+  --bgd-glow:rgba(255,255,255,.95);--bgd-smoke1:rgba(0,0,0,.055);--bgd-smoke2:rgba(0,0,0,.04);--bgd-dark:rgba(0,0,0,.07);
+  --bgd-grain-op:.30;
+  --bgd-grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 -.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E")}
+html.blur body::before,html.blur body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
+html.blur body::before{
+  background:
+    linear-gradient(56deg,transparent 14%,var(--bgd-beam1) 24%,transparent 36%),
+    linear-gradient(56deg,transparent 30%,var(--bgd-beam2) 41%,transparent 53%),
+    linear-gradient(56deg,transparent 48%,var(--bgd-beam3) 59%,transparent 70%),
+    radial-gradient(70% 55% at 0% 0%,var(--bgd-glow),transparent 70%),
+    radial-gradient(55% 48% at 84% 18%,var(--bgd-smoke1),transparent 72%),
+    radial-gradient(60% 50% at 14% 88%,var(--bgd-smoke2),transparent 74%),
+    radial-gradient(75% 60% at 100% 100%,var(--bgd-dark),transparent 70%)}
+html.blur body::after{background-image:var(--bgd-grain);background-size:240px 240px;opacity:var(--bgd-grain-op)}
+html.blur[data-theme="light"]{--bg:#EBEBEB}
+
+/* ---------- 3) MODO CLARO MONOCROMO: blanco, grises y casi negro (el rojo de eliminar/borrar se conserva) ---------- */
+html.blur[data-theme="light"]{
+  color-scheme:light;
+  --midnight:#EBEBEB;
+  --c1:#F7F7F7;--c2:#EDEDED;--c3:#D6D6D6;--c4:#3A3A3A;--c5:#222;--c6:#111;
+  --ink:#111;--note:#6B6B6B;
+  --g-bg:#fff;--g-solid:#fff;--g-grain:none;
+  --g-in:#fff;--g-inh:#F2F2F2;--g-ln:#E3E3E3;--g-edge:#D6D6D6;--g-hi:#9A9A9A;--g-trk:#CFCFCF;
+  --g-act:#111;--g-acth:#2B2B2B;
+  --g-btn:0 3px 8px -5px rgba(0,0,0,.28);--g-sh:0 16px 32px -20px rgba(0,0,0,.35);
+  --glow:transparent;--rul-bg:#fff;--sb:#C4C4C4;--sbh:#9E9E9E;
+  --hv:#3A3A3A;--hv-bg:rgba(0,0,0,.08);
+  --seg-bg:rgba(0,0,0,.05);--seg-bd:#D6D6D6;--seg-pill:#fff;--seg-pill-sh:0 2px 6px -2px rgba(0,0,0,.3),inset 0 0 0 1px rgba(0,0,0,.08);--seg-on:#111;--seg-off:#6B6B6B;--seg-bar:#222}
+/* Superficies: blancas y sólidas, borde gris fino (sin desenfoque) */
+html.blur[data-theme="light"] .rail,html.blur[data-theme="light"] .drawer,html.blur[data-theme="light"] .side,html.blur[data-theme="light"] .toast,html.blur[data-theme="light"] .cm-box{background:#fff;background-image:none;border:1px solid #D6D6D6;box-shadow:0 16px 32px -22px rgba(0,0,0,.35);-webkit-backdrop-filter:none;backdrop-filter:none}
+html.blur[data-theme="light"] .pmenu,html.blur[data-theme="light"] .pv-panel,html.blur[data-theme="light"] .rmenu{background:#fff;background-image:none;border:1px solid #D6D6D6;box-shadow:0 16px 32px -18px rgba(0,0,0,.35)}
+html.blur[data-theme="light"] .pbar{background:#fff;border-color:#D6D6D6;box-shadow:none}
+html.blur[data-theme="light"] .cm{background:rgba(235,235,235,.72)}
+html.blur[data-theme="light"] .sub,html.blur[data-theme="light"] .fmts + .who{border-color:#E3E3E3}
+html.blur[data-theme="light"] ::selection{background:#CFCFCF;color:#111}
+html.blur[data-theme="light"] #canvas,html.blur[data-theme="light"] #pages,html.blur[data-theme="light"] .drawer,html.blur[data-theme="light"] .side{--sb:#C4C4C4;--sbh:#9E9E9E}
+html.blur[data-theme="light"] .brand{background:#fff;box-shadow:none}
+/* Foco con teclado: línea fina oscura */
+html.blur[data-theme="light"] :focus-visible,html.blur[data-theme="light"] .rail :focus-visible,html.blur[data-theme="light"] .cm-rail:focus-visible,html.blur[data-theme="light"] .cm-nudge:focus-visible,html.blur[data-theme="light"] .act.dng:focus-visible{outline:1.5px solid #222;outline-offset:2px}
+/* Barra de arriba */
+html.blur[data-theme="light"] .pill{background:#fff;border:1px solid #D6D6D6;box-shadow:0 4px 10px -5px rgba(0,0,0,.3)!important}
+html.blur[data-theme="light"] .tab.on,html.blur[data-theme="light"] .tab.on:hover{color:#111}
+html.blur[data-theme="light"] .tsw{background:#fff;border-color:#D6D6D6}
+html.blur[data-theme="light"] .tsw .knob{background:#111;border-color:#111}
+html.blur[data-theme="light"] .tsw .i-moon{color:#6B6B6B}html.blur[data-theme="light"] .tsw .i-sun{color:#fff}
+/* Campos, interruptores y deslizadores en grises */
+html.blur[data-theme="light"] select option{background:#fff;color:#111}
+html.blur[data-theme="light"] .switch input{background:#CFCFCF}
+html.blur[data-theme="light"] .switch input::after{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+html.blur[data-theme="light"] .switch input:checked{background:#111;box-shadow:none}
+html.blur[data-theme="light"] .switch input:checked::after{background:#fff}
+html.blur[data-theme="light"] input[type=range]{background:#CFCFCF}
+html.blur[data-theme="light"] input[type=range]::-webkit-slider-thumb{background:#fff;border:1px solid #9A9A9A}
+html.blur[data-theme="light"] input[type=range]::-moz-range-thumb{background:#fff;border:1px solid #9A9A9A}
+html.blur[data-theme="light"] .help .how li::before{background:#111;color:#fff;box-shadow:none}
+html.blur[data-theme="light"] .help details p{color:#6B6B6B}
+html.blur[data-theme="light"] .pv-card{background:#F2F2F2;color:#111;border-color:transparent}
+html.blur[data-theme="light"] .pv-card small{color:#6B6B6B}
+html.blur[data-theme="light"] .cm-nudge{background:#fff;color:#111;box-shadow:none;border:1px solid #D6D6D6}
+html.blur[data-theme="light"] .cm-hs i{background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.3)}
+html.blur[data-theme="light"] .cm-rect{border-color:#fff;box-shadow:0 0 0 9999px rgba(0,0,0,.55)}
+html.blur[data-theme="light"] .cm-rail{background:#EDEDED;box-shadow:inset 0 2px 6px rgba(0,0,0,.14),0 1px 0 #fff}
+html.blur[data-theme="light"] .cm-ticks{border-right-color:rgba(0,0,0,.3);background:linear-gradient(90deg,rgba(0,0,0,.3) 1px,transparent 1px) 0 0/calc(100%/18) 100%}
+html.blur[data-theme="light"] .cm-mid{background:#222}
+html.blur[data-theme="light"] .cm-badge{background:#111;color:#fff;box-shadow:none}
+html.blur[data-theme="light"] .cm-badge.on,html.blur[data-theme="light"] .cm-rail .cm-badge.on{background:#111;box-shadow:none}
+html.blur[data-theme="light"] .cn-stage,html.blur[data-theme="light"] .dc-slot{background:#F2F2F2!important}
+html.blur[data-theme="light"] .mr-pill,html.blur[data-theme="light"] .gbox .gtag,html.blur[data-theme="light"] .ptag{background:#111;color:#fff;box-shadow:none}
+/* Dentro de la hoja (blanca): contornos oscuros */
+html.blur[data-theme="light"] .it.sel{outline:2px solid #111;outline-offset:0;box-shadow:none}
+html.blur[data-theme="light"] .it:hover{outline-color:#6B6B6B}
+html.blur[data-theme="light"] .guide{border-color:#8C8C8C}
+html.blur[data-theme="light"] .snap-line{background:#555;box-shadow:none}
+html.blur[data-theme="light"] .gbox{border-color:#555}
+html.blur[data-theme="light"] .marq{border-color:#555;background:rgba(0,0,0,.08);box-shadow:none}
+html.blur[data-theme="light"] #sheet.over{outline:2px solid #111;box-shadow:0 12px 30px -16px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.08)}
+html.blur[data-theme="light"] #sheet.over::after{background:#111;color:#fff;box-shadow:none}
+html.blur[data-theme="light"] .drop,html.blur[data-theme="light"] .drop span,html.blur[data-theme="light"] .drop strong{color:#111}
+html.blur[data-theme="light"] .drop{border-color:#8C8C8C;box-shadow:none}
+html.blur[data-theme="light"] .drop:hover,html.blur[data-theme="light"] #sheet.over .drop{background:#F2F2F2;border-color:#555;box-shadow:none}
+html.blur[data-theme="light"] .pcard .plabel{color:#111}
+html.blur[data-theme="light"] .pv-ref{background:rgba(0,0,0,.06);outline-color:#555}
+html.blur[data-theme="light"] .pv-ref.on{background:rgba(0,0,0,.14);outline-color:#222}
+html.blur[data-theme="light"] .pv-rl,html.blur[data-theme="light"] .pv-rx{background:#111;color:#fff}
+html.blur[data-theme="light"] .pv-mb{background:rgba(0,0,0,.06);outline-color:#555}
+html.blur[data-theme="light"] .pv-ref.on .pv-mb{background:rgba(0,0,0,.12);outline-color:#222}
+/* Páginas: la elegida y las seleccionadas con contorno oscuro */
+html.blur[data-theme="light"] .thumb.on{outline-color:#111}
+html.blur[data-theme="light"] .thumb.sel,html.blur[data-theme="light"] .thumb.on.sel{outline:2px solid #111;outline-offset:3px;box-shadow:0 0 0 7px #D6D6D6}
+html.blur[data-theme="light"] .lift-wrap .thumb{outline:2px solid #111}
+html.blur[data-theme="light"] .lift-wrap .pcard{box-shadow:0 26px 36px -10px rgba(0,0,0,.45)}
+html.blur[data-theme="light"] .lift-n{background:#111;color:#fff;box-shadow:none}
+html.blur[data-theme="light"] .lyr.sel{border-color:#111}
+/* Imprimir y descargar */
+html.blur[data-theme="light"] .obtn .oic{background:#F2F2F2;box-shadow:inset 0 0 0 1px #D6D6D6;color:#111}
+html.blur[data-theme="light"] .obtn .oic svg{stroke:#111}
+html.blur[data-theme="light"] .obtn:hover .oic{background:#EAEAEA}
+html.blur[data-theme="light"] .obtn .otx b{color:#111}
+html.blur[data-theme="light"] .obtn small{opacity:1;color:#6B6B6B}
+html.blur[data-theme="light"] .obtn.pri .oic{background:rgba(255,255,255,.16);box-shadow:none;color:#fff}
+html.blur[data-theme="light"] .obtn.pri .oic svg{stroke:#fff}
+html.blur[data-theme="light"] .obtn.pri .otx b,html.blur[data-theme="light"] .obtn.pri small{color:#fff}
+/* Avisos: blancos con borde gris; el icono los distingue (triángulo, check, i) */
+html.blur[data-theme="light"] #toasts .toast,html.blur[data-theme="light"] #toasts .toast.err,html.blur[data-theme="light"] #toasts .toast.ok,html.blur[data-theme="light"] #toasts .toast.info{background-color:#fff;color:#111;border:1px solid #BDBDBD;box-shadow:0 10px 24px -12px rgba(0,0,0,.4)}
+/* Regla */
+html.blur[data-theme="light"] .mrulers .pv-rul,html.blur[data-theme="light"] .mrulers .pv-corner{background:#fff}
+html.blur[data-theme="light"] .pv-corner{color:#555}
+
+/* Botón principal en claro (DECISIÓN PENDIENTE: negro #111, texto blanco, cápsula, sombra suave hacia abajo) */
+html.blur[data-theme="light"] :is(.btn.pri,.obtn.pri,.chip.on,.act.on,.pv-add,.pv-m.on,.pv-rb.on,.pv-tab.on),
+html.blur[data-theme="light"] :is(.btn.pri,.obtn.pri,.chip.on,.act.on,.pv-add,.pv-m.on,.pv-rb.on,.pv-tab.on):active{background:#111;border:1px solid #111;border-radius:999px;color:#fff;box-shadow:0 6px 12px -8px rgba(0,0,0,.55);transform:none}
+html.blur[data-theme="light"] :is(.btn.pri,.obtn.pri,.chip.on,.act.on,.pv-add,.pv-m.on,.pv-rb.on,.pv-tab.on):hover{background:#2B2B2B;border-color:#2B2B2B;color:#fff;box-shadow:0 6px 12px -8px rgba(0,0,0,.55);transform:none}
+html.blur[data-theme="light"] :is(.act.on,.btn.pri,.chip.on) svg{stroke:#fff}
+
+/* ---------- 4) ESCUADRAS DE SELECCIÓN (.rz): siempre visibles sobre cualquier foto ----------
+   Causa del problema: la escuadra era solo un trazo blanco y su única separación de la foto era una sombra hacia abajo,
+   que el marco .it (overflow:hidden) recortaba en el borde: arriba la sombra caía dentro de la foto y se veía; abajo caía
+   fuera y se perdía. Con esquinas claras (o transparentes sobre la hoja blanca) quedaban 2 de 4.
+   Ahora son dos trazos superpuestos dentro del mismo cuadro de 18×18 px (nada que se recorte): un filete oscuro (6 px) y
+   encima el trazo blanco (4 px), así queda un contorno oscuro de 1 px a cada lado. Tamaño, posición y área de agarre no cambian. */
+html.blur .rz::before,html.blur .rz::after{content:"";position:absolute;box-sizing:border-box;width:18px;height:18px;border:0 solid;filter:none!important;transition:none}
+html.blur .rz::before{border-color:#000!important}
+html.blur .rz::after{width:16px;height:16px;border-color:#fff!important}
+html.blur .rz[data-c=nw]::before{left:0;top:0;border-width:6px 0 0 6px}
+html.blur .rz[data-c=nw]::after{left:1px;top:1px;border-width:4px 0 0 4px}
+html.blur .rz[data-c=ne]::before{right:0;top:0;border-width:6px 6px 0 0}
+html.blur .rz[data-c=ne]::after{right:1px;top:1px;border-width:4px 4px 0 0}
+html.blur .rz[data-c=sw]::before{left:0;bottom:0;border-width:0 0 6px 6px}
+html.blur .rz[data-c=sw]::after{left:1px;bottom:1px;border-width:0 0 4px 4px}
+html.blur .rz[data-c=se]::before{right:0;bottom:0;border-width:0 6px 6px 0}
+html.blur .rz[data-c=se]::after{right:1px;bottom:1px;border-width:0 4px 4px 0}
+/* Pasar el mouse: crece un poco desde su esquina (como antes) y el trazo blanco pasa a gris claro, sin azul */
+html.blur .rz:hover::before,html.blur .rz:hover::after{transform:scale(1.15)}
+html.blur .rz:hover::after{border-color:#D4D4D4!important}
+html.blur .rz:active::before,html.blur .rz:active::after{transform:scale(1)}
+html.blur .rz[data-c=nw]:hover::before{transform-origin:0 0}html.blur .rz[data-c=nw]:hover::after{transform-origin:-1px -1px}
+html.blur .rz[data-c=ne]:hover::before{transform-origin:100% 0}html.blur .rz[data-c=ne]:hover::after{transform-origin:calc(100% + 1px) -1px}
+html.blur .rz[data-c=sw]:hover::before{transform-origin:0 100%}html.blur .rz[data-c=sw]:hover::after{transform-origin:-1px calc(100% + 1px)}
+html.blur .rz[data-c=se]:hover::before{transform-origin:100% 100%}html.blur .rz[data-c=se]:hover::after{transform-origin:calc(100% + 1px) calc(100% + 1px)}
+@media (pointer:coarse){html.blur .rz::before{width:26px;height:26px}html.blur .rz::after{width:24px;height:24px}}
+
+/* ---------- 5) PESTAÑA «DOCUMENTO»: botones compactos, en una fila, alineados a la izquierda ----------
+   «Elegir foto» y «Usar la elegida de la hoja» miden lo que mide su texto (~32 px de alto). Girar, Recorte automático y Quitar foto
+   conservan su ancho y su lugar de antes (debajo). Los selectores van con html.blur para ganarle al <style> que inyecta js/documento.js. */
+html.blur .dc-row{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:8px}
+html.blur .dc-row .btn[data-a="pick"],html.blur .dc-row .btn[data-a="use"]{flex:0 0 auto;width:auto;height:32px;min-height:0;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;line-height:1;white-space:nowrap}
+html.blur .dc-row .btn[data-a="rot"],html.blur .dc-row .btn[data-a="auto"]{flex:1 1 calc(50% - 4px)}
+html.blur .dc-row .btn.dc-del{flex:1 1 100%}
+
+/* El borde y el fondo del pomo del deslizador en oscuro (la regla anterior mezclaba -webkit- y -moz- y Chrome la descartaba entera) */
+html.blur:not([data-theme="light"]) input[type=range]::-webkit-slider-thumb{background:#fff;border:1px solid #2E2E2E}
+html.blur:not([data-theme="light"]) input[type=range]::-moz-range-thumb{background:#fff;border:1px solid #2E2E2E}
+
+/* ---------- 6) ANCHOS COMPLETOS Y PALETA CON COLOR (pedido de la ronda 4) ---------- */
+/* Color / Blanco y negro: cada opción ocupa exactamente la mitad, así la pastilla que se desliza cubre toda su mitad (seg.js lee el ancho real del botón) */
+html.blur .seg.bnseg button,html.blur .seg.bnseg button.on{flex:1 1 0}
+/* Documento: «Elegir foto» y «Usar la elegida de la hoja» se reparten todo el ancho de la fila (si no caben lado a lado, pasan a una debajo de la otra a ancho completo) */
+html.blur .dc-row .btn[data-a="pick"],html.blur .dc-row .btn[data-a="use"]{flex:1 1 calc(50% - 4px);min-width:max-content;padding:0 8px}
+/* El icono de paleta de «Color» va pintado (único color de la interfaz fuera del rojo de eliminar y del contenido); no cambia entre claro/oscuro ni al elegir la otra opción */

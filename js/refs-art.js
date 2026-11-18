@@ -1,4 +1,4 @@
-/* Dibujos de referencia con medida real (manos y objetos), para la vista previa.
+/* Dibujos de referencia con medida real (manos y objetos), para el panel Medidas.
    Cada uno: id, n (nombre), cm (medida por defecto), vb (tamaño del dibujo), span (parte del ancho del dibujo que mide "cm"; si no se indica, todo el ancho),
    mb (zona medida: x, y, ancho, alto; el marco punteado se dibuja solo ahí y el resto del dibujo sobresale).
    Los objetos están dibujados a escala (1 unidad = 1 mm). Las manos son aproximadas: la mano de cada persona varía. */

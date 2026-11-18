@@ -71,7 +71,7 @@
     App.drawRuler(rv, { vertical: true, start: r.top - (top + RT), ppm, len: S.H, margin: 0, fs: 13, hover: my == null ? null : (my - r.top) / ppm });
   };
   const rgb = q('.pv-rg');
-  rgb.onclick = () => { const b = document.getElementById('bRuler'); if (b) b.click(); else S.ruler = !S.ruler; drawRulers(); };
+  rgb.onclick = () => { S.ruler = !S.ruler; drawRulers(); };
   const scheduleRuler = () => { if (!rraf) rraf = requestAnimationFrame(drawRulers); };
 
   // Zoom: rueda del mouse, botones o doble clic; con zoom se arrastra para mover la hoja

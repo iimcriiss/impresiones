@@ -6,7 +6,9 @@
   function mk(it) {
     const d = document.createElement('div'); d.className = 'it'; d.dataset.id = it.id;
     const im = new Image(); im.src = it.src; im.alt = ''; d.append(im);
-    const h = document.createElement('i'); h.className = 'rz'; h.title = 'Arrastra: cambia el tamaño · Shift: deformar · Doble clic: proporción original'; d.append(h);
+    ['nw', 'ne', 'sw', 'se'].forEach(c => {      // un tirador por esquina
+      const h = document.createElement('i'); h.className = 'rz'; h.dataset.c = c; h.title = 'Arrastra: cambia el tamaño · Shift: deformar · Doble clic: proporción original'; d.append(h);
+    });
     return d;
   }
   App.mk = mk;
@@ -75,16 +77,24 @@
     $('side').classList.toggle('off', !it);
     document.body.classList.toggle('selmulti', multi);
     $('bUndeform').hidden = !(it && it.df && !multi);
-    if (it) { $('cz').value = Math.round((it.z || 1) * 100); $('czVal').textContent = Math.round((it.z || 1) * 100) + '%'; App.syncFields(); }
+    if (it) App.syncFields();
   };
   const canvas = $('canvas');
   // Tamaño de la hoja: ajustada a la pantalla x zoom
   App.fit = () => {
-    const S = App.S, aw = canvas.clientWidth - 32;
-    const ah = matchMedia('(min-width:1101px)').matches ? canvas.clientHeight - 32 : 1e9;
+    const S = App.S, desk = matchMedia('(min-width:1101px)').matches, pg = $('pages');
+    // Las barras de abajo flotan sobre el lienzo: se deja ese espacio libre para que la hoja entera quepa
+    const bar = document.querySelector('.bar');
+    canvas.style.paddingBottom = desk ? (16 + bar.offsetHeight + 8 + (pg && !pg.hidden ? pg.offsetHeight + 8 : 0)) + 'px' : '';
+    const cs = getComputedStyle(canvas), pad = k => parseFloat(cs[k]) || 0;
+    const aw = canvas.clientWidth - pad('paddingLeft') - pad('paddingRight');
+    const ah = desk ? canvas.clientHeight - pad('paddingTop') - pad('paddingBottom') : 1e9;
     const s = Math.max(.5, Math.min(aw / S.W, ah / S.H)) * S.zoom / 100;
     sheet.style.width = S.W*s + 'px'; sheet.style.height = S.H*s + 'px';
   };
+  // La barra de abajo puede partirse en dos filas: la tira de páginas y el ajuste de la hoja siguen su altura real
+  if (window.ResizeObserver) new ResizeObserver(() => { document.documentElement.style.setProperty('--barh', document.querySelector('.bar').offsetHeight + 'px'); App.fit(); }).observe(document.querySelector('.bar'));
+  if (window.MutationObserver && $('pages')) new MutationObserver(() => App.fit()).observe($('pages'), { attributes: true, attributeFilter: ['hidden'] });
   App.render = () => {
     const S = App.S; App.dims();
     const root = document.documentElement.style;
