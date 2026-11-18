@@ -324,7 +324,7 @@
     const wasManual = S.manual, pageNo = S.page, added = [], gone = origs.map(o => ({ it: o, i: S.items.indexOf(o) })).sort((a, b) => a.i - b.i);
     [...gone].reverse().forEach(g => { if (g.i >= 0) S.items.splice(g.i, 1); });      // se quita la imagen original
     have.forEach((s, j) => {
-      const c = { id: 'i' + (++S.uid), name: 'Documento · ' + s.name, img: ims[j], src: ims[j].src, x: pos[j].x, y: pos[j].y, w: FW, h: FH, rot: 0, fit: 'cover', z: 1, fx: 0, fy: 0, l: App.nextLayer() };
+      const c = { id: 'i' + (++S.uid), name: 'Documento · ' + s.name, img: ims[j], src: ims[j].src, x: pos[j].x, y: pos[j].y, w: FW, h: FH, rot: 0, fit: 'cover', real: true, z: 1, fx: 0, fy: 0, l: App.nextLayer() };
       S.items.push(c); added.push(c);
     });
     have.forEach(s => { s.srcId = null; });

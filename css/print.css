@@ -7,9 +7,8 @@
   .pp{position:relative;width:var(--pw);height:calc(var(--ph) - .3mm);overflow:hidden;background:#fff;break-after:page}
   .pp:last-child{break-after:auto}
   html.blur body::before,html.blur body::after{display:none!important}      /* el fondo con diseño es solo de pantalla */
-  html.blur,html.blur body{margin:0!important;padding:0!important;min-height:0!important;height:auto!important}      /* sin relleno: 6 px de más creaban una 2.ª página en blanco */
   .rz{display:none!important}
   .pp .it.bn img{-webkit-filter:none!important;filter:none!important}      /* el blanco y negro es solo para ver: al imprimir va en color */
   .it{outline:0!important}
-  .pp .marks{z-index:9999}
+  .pp .marks{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:9999}      /* las marcas de corte cubren toda la página impresa */
 }

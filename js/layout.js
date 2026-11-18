@@ -69,9 +69,10 @@
     const f = Math.max(0.3, (sw + og.reduce((a, b) => a + b, 0) - ng.reduce((a, b) => a + b, 0)) / sw);
     let end = 0;
     tr.forEach((t, j) => {
+      const ft = t.i.some(App.isReal) ? 1 : f;      // las caras de documento (tamaño real) solo se desplazan: nunca se estiran
       const ns = j ? end + ng[j] : t.s;
-      t.i.forEach(it => { it[p] = ns + (it[p] - t.s) * f; it[s] *= f; });
-      end = ns + (t.e - t.s) * f;
+      t.i.forEach(it => { it[p] = ns + (it[p] - t.s) * ft; it[s] *= ft; });
+      end = ns + (t.e - t.s) * ft;
     });
   };
   // Ajusta el marco a la proporción de la imagen (sin bandas blancas), centrado donde estaba y dentro de la hoja.
@@ -83,6 +84,8 @@
     const k = Math.min(1, S.W / w, S.H / h); w *= k; h *= k;
     it.w = w; it.h = h; it.x = Math.max(0, Math.min(S.W - w, cx - w / 2)); it.y = Math.max(0, Math.min(S.H - h, cy - h / 2));
   };
+  // Imágenes de tamaño real (las caras que agrega «Documento»; también las de archivos guardados antes de existir esta marca)
+  App.isReal = it => !!it.real || /^Documento · /.test(it.name || '');
   // Reacomoda todas las páginas: las automáticas se recalculan; las editadas a mano
   // (si cambió el tamaño o la orientación del papel) se escalan para que no se salgan de la hoja.
   App.relayout = (oW, oH) => {
@@ -99,7 +102,19 @@
           if (ow > 0 && oh > 0 && nw > 0 && nh > 0) {
             const kx = nw / ow, ky = nh / oh;
             const kk = Math.sqrt(kx * ky);      // escala pareja: la imagen conserva su tamaño y su forma al ir de vertical a horizontal y volver
+            // Documentos de tamaño real: se mueven juntos, como un bloque rígido (mismo tamaño, misma forma y misma separación entre caras).
+            // El bloque sigue el centro que tenía en la hoja y queda dentro de los márgenes; solo se reduce (parejo) si no cabe.
+            const real = S.items.filter(App.isReal);
+            if (real.length) {
+              const x0 = Math.min(...real.map(i => i.x)), y0 = Math.min(...real.map(i => i.y));
+              const bw = Math.max(...real.map(i => i.x + i.w)) - x0, bh = Math.max(...real.map(i => i.y + i.h)) - y0;
+              const f = Math.min(1, nw / bw, nh / bh);
+              const gx = Math.max(S.margin, Math.min(S.W - S.margin - bw * f, S.margin + (x0 + bw / 2 - oM) * kx - bw * f / 2));
+              const gy = Math.max(S.margin, Math.min(S.H - S.margin - bh * f, S.margin + (y0 + bh / 2 - oM) * ky - bh * f / 2));
+              real.forEach(it => { it.x = gx + (it.x - x0) * f; it.y = gy + (it.y - y0) * f; it.w *= f; it.h *= f; });
+            }
             S.items.forEach(it => {
+              if (App.isReal(it)) return;
               const stretch = it.df || it.fit === 'cover';      // deformadas y «Llenar y recortar» sí se estiran con la hoja
               const cx = S.margin + (it.x + it.w / 2 - oM) * kx, cy = S.margin + (it.y + it.h / 2 - oM) * ky;      // el centro se mueve con la hoja
               it.w *= stretch ? kx : kk; it.h *= stretch ? ky : kk;
@@ -110,7 +125,18 @@
             });
           }
         }
-        if (S.gap !== oG) { respace(S.items, 'x', 'w', S.gap - oG); respace(S.items, 'y', 'h', S.gap - oG); }
+        if (S.gap !== oG) {
+          respace(S.items, 'x', 'w', S.gap - oG); respace(S.items, 'y', 'h', S.gap - oG);
+          // si al abrir más la separación el bloque de documento se saliera de los márgenes, se vuelve a meter (sin cambiar su tamaño)
+          const real = S.items.filter(App.isReal);
+          if (real.length) {
+            const x0 = Math.min(...real.map(i => i.x)), y0 = Math.min(...real.map(i => i.y));
+            const bw = Math.max(...real.map(i => i.x + i.w)) - x0, bh = Math.max(...real.map(i => i.y + i.h)) - y0;
+            const dx = bw <= S.W - 2 * S.margin ? Math.max(S.margin, Math.min(S.W - S.margin - bw, x0)) - x0 : 0;
+            const dy = bh <= S.H - 2 * S.margin ? Math.max(S.margin, Math.min(S.H - S.margin - bh, y0)) - y0 : 0;
+            if (dx || dy) real.forEach(it => { it.x += dx; it.y += dy; });
+          }
+        }
       }
       p.manual = S.manual;
     });

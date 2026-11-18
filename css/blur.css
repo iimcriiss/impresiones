@@ -760,3 +760,6 @@ html.blur .seg.bnseg button,html.blur .seg.bnseg button.on{flex:1 1 0}
 /* Documento: «Elegir foto» y «Usar la elegida de la hoja» se reparten todo el ancho de la fila (si no caben lado a lado, pasan a una debajo de la otra a ancho completo) */
 html.blur .dc-row .btn[data-a="pick"],html.blur .dc-row .btn[data-a="use"]{flex:1 1 calc(50% - 4px);min-width:max-content;padding:0 8px}
 /* El icono de paleta de «Color» va pintado (único color de la interfaz fuera del rojo de eliminar y del contenido); no cambia entre claro/oscuro ni al elegir la otra opción */
+
+/* ---------- 7) MARCAS DE CORTE: el SVG cubre toda la hoja (antes quedaba en 22×22 px arriba a la izquierda, en pantalla y al imprimir) ---------- */
+#sheet > .marks{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:40}
