@@ -1,6 +1,7 @@
 #printArea{display:none}
 @media print{
-  html,body{height:auto;display:block;margin:0;padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body,html.blur body{height:auto!important;min-height:0!important;display:block!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* sin el padding-bottom de pantalla (html.blur body) el contenido impreso medía más que la hoja y salía una página extra en blanco */
   .rail,.drawer,.side,main,#toasts{display:none!important}
   body > *:not(#printArea){display:none!important}      /* menús, cápsulas y ventanas flotantes (creados fuera de la hoja) nunca salen impresos */
   #printArea{display:block}
